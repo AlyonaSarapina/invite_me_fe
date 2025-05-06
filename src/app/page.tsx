@@ -1,95 +1,105 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
 
-export default function Home() {
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { observer } from "mobx-react";
+import { useStore } from "@/stores/context";
+import AuthLayout from "@/components/AuthLayout";
+import { Form, Formik } from "formik";
+import { loginSchema } from "@/validation/loginSchema";
+import { toFormikValidationSchema } from "zod-formik-adapter";
+import FormInput from "@/components/FormInput";
+import { LoginFormValues } from "@/types/auth";
+import styles from "@/styles/Form.module.css";
+import { colors } from "@/styles/theme";
+
+const initialValues: LoginFormValues = {
+  email: "",
+  password: "",
+};
+
+function LoginPage() {
+  const router = useRouter();
+  const { userStore } = useStore();
+  const { user, error, login } = userStore;
+
+  const handleSubmit = async (values: LoginFormValues) => {
+    await login(values.email, values.password);
+  };
+
+  useEffect(() => {
+    if (user) {
+      switch (user.role) {
+        case "owner":
+          router.push("/owner/restaurants");
+          break;
+        case "client":
+          router.push("/restaurants");
+          break;
+        default:
+          router.push("/dashboard");
+      }
+    }
+  }, [user, router]);
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <AuthLayout>
+      <h2 className={`mb-4 ${styles.title}`}>
+        Welcome back to <span style={{ color: "#A0006D" }}>Invite Me</span>
+      </h2>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={toFormikValidationSchema(loginSchema)}
+        onSubmit={handleSubmit}
+      >
+        {({ isSubmitting }) => (
+          <Form>
+            {error && (
+              <div className={`alert alert-danger ${styles.error}`}>
+                {error}
+              </div>
+            )}
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+            <FormInput
+              name="email"
+              label="Email address"
+              type="email"
+              placeholder="example@email.com"
+              disabled={isSubmitting}
             />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+            <FormInput
+              name="password"
+              label="Password"
+              type="password"
+              placeholder="Enter your password"
+              disabled={isSubmitting}
+            />
+
+            <button
+              type="submit"
+              className={`btn w-100 mb-3 ${styles.btnPrimaryCustom}`}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Logging in..." : "Login"}
+            </button>
+
+            <p className="text-center" style={{ fontSize: "14px" }}>
+              Don't have an account?{" "}
+              <Link
+                href="/register"
+                className={styles.link}
+                style={{ color: colors.accentEggplant }}
+              >
+                Sign up here
+              </Link>
+            </p>
+          </Form>
+        )}
+      </Formik>
+    </AuthLayout>
   );
 }
+
+export default observer(LoginPage);
