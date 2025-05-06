@@ -1,0 +1,44 @@
+.authWrapper {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.mobileHeaderWrapper {
+  height: 100px;
+}
+
+.mobileHeader {
+  height: 100%;
+  width: 100%;
+  background-size: 50%;
+  background-position: 90% 60%;
+  background-image: url('/login-background.png');
+}
+
+.authContent {
+  background-color: #EFFAFD;
+  min-height: calc(100vh - 100px);
+}
+
+.authInner {
+  width: 100%;
+  max-width: 400px;
+}
+
+.authBackgroundDesktopWrapper {
+  height: 100vh;
+}
+
+.authBackgroundDesktop {
+  height: 100%;
+  width: 100%;
+  background-image: url('/login-background.png');
+  background-size: cover;
+  background-position: center;
+}
+
+
+
+
+
+

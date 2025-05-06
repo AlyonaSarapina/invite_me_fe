@@ -1,6 +1,7 @@
 "use client";
 
 import { Field, ErrorMessage } from "formik";
+import styles from "@/styles/FormInput.module.css";
 
 type FormInputProps = {
   label: string;
@@ -19,23 +20,13 @@ export default function FormInput({
 }: FormInputProps) {
   return (
     <div className="form-group mb-3">
-      <label
-        className="form-label"
-        style={{ fontSize: "14px", fontWeight: 500 }}
-      >
-        {label}
-      </label>
+      <label className={`form-label ${styles.label}`}>{label}</label>
       <Field
         name={name}
         type={type}
-        className="form-control"
         placeholder={placeholder}
         disabled={disabled}
-        style={{
-          height: "48px",
-          borderRadius: "6px",
-          fontSize: "14px",
-        }}
+        className={`form-control ${styles.input}`}
       />
       <ErrorMessage name={name} component="div" className="text-danger small" />
     </div>

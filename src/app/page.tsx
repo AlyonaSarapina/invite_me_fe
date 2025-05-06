@@ -12,7 +12,6 @@ import { toFormikValidationSchema } from "zod-formik-adapter";
 import FormInput from "@/components/FormInput";
 import { LoginFormValues } from "@/types/auth";
 import styles from "@/styles/Form.module.css";
-import { colors } from "@/styles/theme";
 
 const initialValues: LoginFormValues = {
   email: "",
@@ -21,8 +20,9 @@ const initialValues: LoginFormValues = {
 
 function LoginPage() {
   const router = useRouter();
-  const { userStore } = useStore();
-  const { user, error, login, isOwner, isClient } = userStore;
+  const { userStore, loginStore } = useStore();
+  const { user, isClient, isOwner } = userStore;
+  const { login, error } = loginStore;
 
   const handleSubmit = async (values: LoginFormValues) => {
     await login(values.email, values.password);
@@ -30,7 +30,7 @@ function LoginPage() {
 
   useEffect(() => {
     if (isOwner) {
-      router.push("/owner/dashboard");
+      router.push("/owner/restaurants");
     } else if (isClient) {
       router.push("restaurants");
     }
@@ -39,8 +39,7 @@ function LoginPage() {
   return (
     <AuthLayout>
       <h2 className={`mb-4 ${styles.title}`}>
-        Welcome back to{" "}
-        <span style={{ color: colors.accentEggplant }}>Invite Me</span>
+        Welcome back to <span className={`${styles.brand}`}>Invite Me</span>
       </h2>
       <Formik
         initialValues={initialValues}
@@ -79,12 +78,11 @@ function LoginPage() {
               {isSubmitting ? "Logging in..." : "Login"}
             </button>
 
-            <p className="text-center" style={{ fontSize: "14px" }}>
+            <p className={`text-center ${styles.linkWrapper}`}>
               Don't have an account?{" "}
               <Link
                 href="/register"
-                className={styles.link}
-                style={{ color: colors.accentEggplant }}
+                className={`${styles.link} ${styles.brand}`}
               >
                 Sign up here
               </Link>
