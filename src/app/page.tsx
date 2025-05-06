@@ -22,31 +22,25 @@ const initialValues: LoginFormValues = {
 function LoginPage() {
   const router = useRouter();
   const { userStore } = useStore();
-  const { user, error, login } = userStore;
+  const { user, error, login, isOwner, isClient } = userStore;
 
   const handleSubmit = async (values: LoginFormValues) => {
     await login(values.email, values.password);
   };
 
   useEffect(() => {
-    if (user) {
-      switch (user.role) {
-        case "owner":
-          router.push("/owner/restaurants");
-          break;
-        case "client":
-          router.push("/restaurants");
-          break;
-        default:
-          router.push("/dashboard");
-      }
+    if (isOwner) {
+      router.push("/owner/dashboard");
+    } else if (isClient) {
+      router.push("restaurants");
     }
-  }, [user, router]);
+  }, [user]);
 
   return (
     <AuthLayout>
       <h2 className={`mb-4 ${styles.title}`}>
-        Welcome back to <span style={{ color: "#A0006D" }}>Invite Me</span>
+        Welcome back to{" "}
+        <span style={{ color: colors.accentEggplant }}>Invite Me</span>
       </h2>
       <Formik
         initialValues={initialValues}
