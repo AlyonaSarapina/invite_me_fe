@@ -4,4 +4,7 @@ export const store = RootStore.create({
   userStore: {},
   loginStore: {},
   registerStore: {},
+  restaurantStore: {
+    restaurants: [],
+  },
 });
