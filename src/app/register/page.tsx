@@ -6,7 +6,7 @@ import { observer } from "mobx-react-lite";
 import { useStore } from "@/stores/context";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/bootstrap.css";
-import { Formik, Form, Field, ErrorMessage, FormikHelpers } from "formik";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import { registerSchema } from "@/validation/registerSchema";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import AuthLayout from "@/components/AuthLayout";

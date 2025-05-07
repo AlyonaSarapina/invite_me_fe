@@ -15,11 +15,6 @@ export const LoginStore = types
         const { data } = yield api.post("/auth/login", { email, password });
 
         localStorage.setItem("token", data.accessToken);
-
-        const { data: user } = yield api.get("/users/me");
-
-        getParent<typeof RootStore>(self).userStore.setUser(user);
-        console.log(data.accessToken, user);
       } catch (err: any) {
         console.error(err);
         if (err.response?.status === 401) {
@@ -35,28 +30,8 @@ export const LoginStore = types
     const logout = () => {
       localStorage.removeItem("token");
     };
-
-    const init = flow(function* () {
-      const storedToken = localStorage.getItem("token");
-      if (storedToken) {
-        try {
-          const { data: user } = yield api.get("/users/me");
-          getParent<typeof RootStore>(self).userStore.setUser(user);
-          console.log(user);
-        } catch (err) {
-          console.error("Failed to restore session", err);
-          logout();
-        }
-      }
-    });
-
-    return { logout, login, init };
-  })
-  .actions((self) => ({
-    afterCreate() {
-      self.init();
-    },
-  }));
+    return { logout, login };
+  });
 
 export interface ILoginStore extends Instance<typeof LoginStore> {}
 export const loginStore = LoginStore.create({});

@@ -21,11 +21,12 @@ const initialValues: LoginFormValues = {
 function LoginPage() {
   const router = useRouter();
   const { userStore, loginStore } = useStore();
-  const { user, isClient, isOwner } = userStore;
+  const { user, checkAuth, isClient, isOwner } = userStore;
   const { login, error } = loginStore;
 
   const handleSubmit = async (values: LoginFormValues) => {
     await login(values.email, values.password);
+    await userStore.checkAuth();
   };
 
   useEffect(() => {
