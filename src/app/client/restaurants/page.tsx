@@ -18,10 +18,11 @@ function RestaurantsList() {
     currentPage,
     setNameFilter,
     setCurrentPage,
+    setMinRatingFilter,
+    setIsPetFriendlyFilter,
+    setCuisinesFilter,
   } = restaurantStore;
-  const { isClient } = userStore;
   const searchParams = useSearchParams();
-  const router = useRouter();
   const [showFilters, setShowFilters] = useState(false);
 
   const toggleFilters = () => setShowFilters((prev) => !prev);
@@ -33,27 +34,13 @@ function RestaurantsList() {
     const isPetFriendly = searchParams.get("is_pet_friendly");
     const cuisineParam = searchParams.get("cuisine");
 
-    setNameFilter(name);
     setCurrentPage(page);
-
-    if (minRating !== null) {
-      restaurantStore.setMinRatingFilter(
-        minRating ? parseInt(minRating) : null
-      );
-    }
-
-    if (isPetFriendly !== null) {
-      restaurantStore.setIsPetFriendlyFilter(
-        isPetFriendly === "true" ? true : null
-      );
-    }
-
-    if (cuisineParam) {
-      const cuisinesArray = cuisineParam.split(",").filter(Boolean);
-      restaurantStore.setCuisinesFilter(cuisinesArray);
-    } else {
-      restaurantStore.setCuisinesFilter([]);
-    }
+    setNameFilter(name);
+    setMinRatingFilter(minRating ? parseInt(minRating) : null);
+    setIsPetFriendlyFilter(isPetFriendly === "true" ? true : null);
+    setCuisinesFilter(
+      cuisineParam ? cuisineParam.split(",").filter(Boolean) : []
+    );
   };
 
   useEffect(() => {
@@ -61,11 +48,7 @@ function RestaurantsList() {
   }, []);
 
   useEffect(() => {
-    if (isClient) {
-      fetchRestaurants();
-    } else {
-      router.push("/");
-    }
+    fetchRestaurants();
   }, [
     filters.name,
     filters.minRating,

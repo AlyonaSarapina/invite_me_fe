@@ -17,14 +17,16 @@ const Filters: React.FC = () => {
     setCuisinesFilter,
     setMinRatingFilter,
     setIsPetFriendlyFilter,
+    setCurrentPage,
   } = restaurantStore;
   const searchParams = useSearchParams();
   const router = useRouter();
   const [localSearch, setLocalSearch] = useState(filters.name ?? "");
 
   useEffect(() => {
-    setLocalSearch(filters.name ?? "");
-  }, [filters.name]);
+    const name = searchParams.get("name")?.toLowerCase() || "";
+    setLocalSearch(name);
+  }, []);
 
   const debouncedSearch = useMemo(
     () =>
@@ -70,13 +72,10 @@ const Filters: React.FC = () => {
     setMinRatingFilter(null);
     setIsPetFriendlyFilter(null);
     setLocalSearch("");
+    setCurrentPage(1);
 
-    updateQueryParam("name", "", router, searchParams);
-    updateQueryParam("cuisine", "", router, searchParams);
-    updateQueryParam("min_rating", "", router, searchParams);
-    updateQueryParam("is_pet_friendly", null, router, searchParams);
-
-    router.push("/client/restaurants");
+    const newParams = new URLSearchParams();
+    router.push(`/client/restaurants?${newParams.toString()}`);
   };
 
   return (
