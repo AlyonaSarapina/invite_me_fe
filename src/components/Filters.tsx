@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { updateQueryParam } from "@/utils/updateQuery";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -21,6 +21,10 @@ const Filters: React.FC = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [localSearch, setLocalSearch] = useState(filters.name ?? "");
+
+  useEffect(() => {
+    setLocalSearch(filters.name ?? "");
+  }, [filters.name]);
 
   const debouncedSearch = useMemo(
     () =>

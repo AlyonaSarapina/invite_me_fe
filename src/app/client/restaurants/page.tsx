@@ -29,9 +29,31 @@ function RestaurantsList() {
   const syncParamsToStore = () => {
     const page = parseInt(searchParams.get("page") || "1", 10);
     const name = searchParams.get("name")?.toLowerCase() || "";
+    const minRating = searchParams.get("min_rating");
+    const isPetFriendly = searchParams.get("is_pet_friendly");
+    const cuisineParam = searchParams.get("cuisine");
 
     setNameFilter(name);
     setCurrentPage(page);
+
+    if (minRating !== null) {
+      restaurantStore.setMinRatingFilter(
+        minRating ? parseInt(minRating) : null
+      );
+    }
+
+    if (isPetFriendly !== null) {
+      restaurantStore.setIsPetFriendlyFilter(
+        isPetFriendly === "true" ? true : null
+      );
+    }
+
+    if (cuisineParam) {
+      const cuisinesArray = cuisineParam.split(",").filter(Boolean);
+      restaurantStore.setCuisinesFilter(cuisinesArray);
+    } else {
+      restaurantStore.setCuisinesFilter([]);
+    }
   };
 
   useEffect(() => {
