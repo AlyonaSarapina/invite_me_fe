@@ -76,7 +76,7 @@ const Filters: React.FC = () => {
     updateQueryParam("min_rating", "", router, searchParams);
     updateQueryParam("is_pet_friendly", null, router, searchParams);
 
-    router.push("/client/restaurants", undefined);
+    router.push("/client/restaurants");
   };
 
   return (
