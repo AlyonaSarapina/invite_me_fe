@@ -1,0 +1,32 @@
+.customToggler {
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.customToggler:hover {
+  outline: 1px solid #4A8BDF;
+}
+
+.customToggler:focus {
+  outline: none;
+  box-shadow: 0 0 0 1px #4A8BDF;
+}
+
+@media (max-width: 991.98px) {
+  .customCollapse {
+    display: block;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition:
+      max-height 0.5s ease,
+      opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  .open {
+    max-height: 500px;
+    opacity: 1;
+    pointer-events: auto;
+  }
+}

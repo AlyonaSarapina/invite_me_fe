@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { RestaurantCardData } from "@/types/RestaurantCardData";
-import styles from "@/styles/RestaurantCard.module.css";
 
 type Props = {
   restaurant: RestaurantCardData;
@@ -8,42 +7,62 @@ type Props = {
 
 export default function RestaurantCard({ restaurant }: Props) {
   return (
-    <Link
-      href={`/restaurants/${restaurant.id}`}
-      className="text-decoration-none text-dark"
+    <div
+      className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden p-3"
+      style={{ maxWidth: "300px", margin: "0 auto" }}
     >
-      <div
-        className={`card h-100 border-0 shadow-sm rounded-4 overflow-hidden ${styles.card}`}
-      >
-        <div className="position-relative">
-          {restaurant.logo_url && (
-            <img
-              src={restaurant.logo_url}
-              className="card-img-top"
-              alt={restaurant.name}
-              style={{ height: "220px", objectFit: "cover" }}
-            />
-          )}
-          <span
-            className="position-absolute top-0 end-0 bg-dark text-white px-2 py-1 rounded-bottom-start"
-            style={{ fontSize: "0.9rem" }}
+      <div className="position-relative mb-3">
+        {restaurant.logo_url && (
+          <img
+            src={restaurant.logo_url}
+            className="card-img-top rounded-3"
+            alt={restaurant.name}
+            style={{
+              height: "180px",
+              objectFit: "cover",
+              maxHeight: "180px",
+            }}
+          />
+        )}
+      </div>
+
+      <div className="d-flex flex-column justify-content-between">
+        <div className="d-flex justify-content-between align-items mb-2">
+          <h5
+            className="card-title fw-bold text-dark mb-0"
+            style={{ fontSize: "1rem" }}
           >
-            ⭐ {+restaurant.rating}/5
+            {restaurant.name}
+          </h5>
+          <span className="d-flex align-items-center text-success fw-bold">
+            ⭐️ {+restaurant.rating}
           </span>
         </div>
-
-        <div className="card-body d-flex flex-column justify-content-between">
-          <div>
-            <h5 className="card-title">{restaurant.name}</h5>
-            <p className="text-muted mb-1">
-              <strong>Cuisine:</strong> {restaurant.cuisine}
-            </p>
+        <div className="d-flex justify-content-between align-items-center mt-auto">
+          <div className="w-100">
+            <div
+              className="text-dark mb-2 small"
+              style={{ fontSize: "0.875rem" }}
+            >
+              🍽️ {restaurant.cuisine}
+            </div>
             {restaurant.is_pet_friendly && (
-              <span className="badge bg-success mb-2">🐾 Pet Friendly</span>
+              <div className="text-dark small mb-2">🐾 Pet Friendly</div>
             )}
+            <div className="text-dark small">
+              📍 {restaurant.address.split(",")[1] || "City"}
+            </div>
+          </div>
+          <div className="align-self-end">
+            <Link
+              href={`/restaurants/${restaurant.id}`}
+              className="btn btn-sm btn-outline-success px-3 rounded fw-bold"
+            >
+              View Details
+            </Link>
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

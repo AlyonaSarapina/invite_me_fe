@@ -1,6 +1,5 @@
 import { types } from "mobx-state-tree";
 
-// Define your Restaurant model
 const RestaurantModel = types.model("Restaurant", {
   id: types.identifierNumber,
   name: types.string,

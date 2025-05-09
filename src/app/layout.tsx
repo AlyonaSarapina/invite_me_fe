@@ -10,10 +10,14 @@ import "react-phone-input-2/lib/bootstrap.css";
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <Head>
+      <head>
         <title>Invite me</title>
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
         <link rel="icon" href="/favicon.ico" sizes="any" />
-      </Head>
+      </head>
       <body>
         <StoreProvider store={store}>{children}</StoreProvider>
       </body>

@@ -33,7 +33,7 @@ function LoginPage() {
     if (isOwner) {
       router.push("/owner/restaurants");
     } else if (isClient) {
-      router.push("restaurants");
+      router.push("client/restaurants");
     }
   }, [user]);
 

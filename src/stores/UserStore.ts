@@ -24,7 +24,6 @@ export const UserStore = types
       self.loading = true;
       try {
         const { data: user } = yield api.get("/users/me");
-        console.log(user);
         self.user = user;
       } catch (err) {
         console.error("Session restore failed", err);

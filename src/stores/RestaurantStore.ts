@@ -1,13 +1,14 @@
 import { Instance, flow, types } from "mobx-state-tree";
 import { api } from "@/utils/axios";
 import RestaurantModel from "./models/RestaurantModel";
+import FiltersModel from "./models/FiltersModel";
 
 export const RestaurantStore = types
   .model("RestaurantStore", {
     restaurants: types.array(RestaurantModel),
     totalCount: types.optional(types.number, 0),
     currentPage: types.optional(types.number, 1),
-    filters: types.optional(types.frozen(), {}),
+    filters: types.optional(FiltersModel, {}),
     loading: types.optional(types.boolean, false),
   })
   .actions((self) => {
@@ -18,13 +19,28 @@ export const RestaurantStore = types
         const limit = 10;
         const offset = (currentPage - 1) * limit;
 
-        const query = new URLSearchParams({
-          ...filters,
-          limit,
-          offset,
-        } as any).toString();
-        const res = yield api.get(`/restaurants?${query}`);
-        console.log(res.data.data);
+        const query = new URLSearchParams();
+
+        if (filters.name) {
+          query.set("name", filters.name);
+        }
+
+        if (filters.minRating) {
+          query.set("min_rating", filters.minRating.toString());
+        }
+
+        if (filters.cuisines && filters.cuisines.length > 0) {
+          query.set("cuisine", filters.cuisines.join(","));
+        }
+
+        if (filters.isPetFriendly) {
+          query.set("is_pet_friendly", String(filters.isPetFriendly));
+        }
+
+        query.set("offset", offset.toString());
+        query.set("limit", limit.toString());
+
+        const res = yield api.get(`/restaurants?${query.toString()}`);
         self.restaurants = res.data.data;
         self.totalCount = res.data.total;
       } catch (err) {
@@ -38,12 +54,31 @@ export const RestaurantStore = types
       self.currentPage = page;
     };
 
-    const setFilters = (newFilters: any) => {
-      self.filters = newFilters;
-      self.currentPage = 1;
+    const setNameFilter = (name: string) => {
+      self.filters.name = name;
     };
 
-    return { fetchRestaurants, setCurrentPage, setFilters };
+    const setMinRatingFilter = (rating: number | null) => {
+      self.filters.minRating = rating;
+    };
+
+    const setIsPetFriendlyFilter = (isPetFriendly: boolean | null) => {
+      self.filters.isPetFriendly = isPetFriendly;
+    };
+
+    const setCuisinesFilter = (newCuisines: Array<string>) => {
+      self.filters.cuisines.clear();
+      newCuisines.forEach((cuisine) => self.filters.cuisines.push(cuisine));
+    };
+
+    return {
+      fetchRestaurants,
+      setCurrentPage,
+      setNameFilter,
+      setMinRatingFilter,
+      setIsPetFriendlyFilter,
+      setCuisinesFilter,
+    };
   });
 
 export interface IRestaurantStore extends Instance<typeof RestaurantStore> {}

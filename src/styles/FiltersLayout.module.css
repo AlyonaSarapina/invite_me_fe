@@ -1,0 +1,12 @@
+.searchInput {
+  border-color: #4A8BDF;
+  color: #4A8BDF;
+  box-shadow: "0 2px 4px rgba(0, 0, 0, 0.1)";
+}
+
+.searchIcon {
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #4A8BDF;
+}
