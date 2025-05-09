@@ -19,19 +19,17 @@ const Filters: React.FC = () => {
     setIsPetFriendlyFilter,
     setCurrentPage,
   } = restaurantStore;
-  const searchParams = useSearchParams();
   const router = useRouter();
   const [localSearch, setLocalSearch] = useState(filters.name ?? "");
 
   useEffect(() => {
-    const name = searchParams.get("name")?.toLowerCase() || "";
-    setLocalSearch(name);
-  }, []);
+    setLocalSearch(filters.name ?? "");
+  }, [filters.name]);
 
   const debouncedSearch = useMemo(
     () =>
       debounce((name: string) => {
-        updateQueryParam("name", name, router, searchParams);
+        updateQueryParam("name", name, router);
         setNameFilter(name);
       }, 300),
     []
@@ -44,7 +42,7 @@ const Filters: React.FC = () => {
 
   const handleFilterByPetFriendly = () => {
     const newPetFriendly = filters.isPetFriendly === true ? null : true;
-    updateQueryParam("is_pet_friendly", newPetFriendly, router, searchParams);
+    updateQueryParam("is_pet_friendly", newPetFriendly, router);
     setIsPetFriendlyFilter(newPetFriendly);
   };
 
@@ -55,14 +53,14 @@ const Filters: React.FC = () => {
         ? filters.cuisines.filter((c) => c !== cuisine)
         : [...filters.cuisines, cuisine];
 
-      updateQueryParam("cuisine", newCuisines.join(","), router, searchParams);
+      updateQueryParam("cuisine", newCuisines.join(","), router);
       setCuisinesFilter(newCuisines);
     },
-    [filters.cuisines, router, searchParams]
+    [filters.cuisines, router]
   );
 
   const handleFilterByMinRating = (minRating: number | null) => {
-    updateQueryParam("min_rating", minRating, router, searchParams);
+    updateQueryParam("min_rating", minRating, router);
     setMinRatingFilter(minRating);
   };
 

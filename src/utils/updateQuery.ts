@@ -1,10 +1,9 @@
 export const updateQueryParam = (
   key: string,
   value: string | boolean | number | null,
-  router: any,
-  searchParams: URLSearchParams
+  router: any
 ) => {
-  const current = new URLSearchParams(Array.from(searchParams.entries()));
+  const current = new URLSearchParams(window.location.search);
 
   if (value !== null && value !== "" && value !== false) {
     current.set(key, String(value));
