@@ -13,7 +13,11 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="d-flex flex-column min-vh-100 bg-light">
-      <Navbar isNavOpen={isNavOpen} handleToggle={handleToggle} />
+      <Navbar
+        isNavOpen={isNavOpen}
+        handleToggle={handleToggle}
+        setIsNavOpen={setIsNavOpen}
+      />
       <div className="container flex-grow-1 py-5">
         <main>{children}</main>
       </div>

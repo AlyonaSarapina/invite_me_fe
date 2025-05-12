@@ -55,7 +55,7 @@ export default function RestaurantCard({ restaurant }: Props) {
           </div>
           <div className="align-self-end">
             <Link
-              href={`/restaurants/${restaurant.id}`}
+              href={`/user/restaurants/${restaurant.id}`}
               className="btn btn-sm btn-outline-success px-3 rounded fw-bold"
             >
               View Details

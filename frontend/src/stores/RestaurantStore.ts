@@ -50,6 +50,19 @@ export const RestaurantStore = types
       }
     });
 
+    const fetchRestaurantById = flow(function* (id: string) {
+      self.loading = true;
+      try {
+        const res = yield api.get(`/restaurants/${id}`);
+        return res.data;
+      } catch (err) {
+        console.error("Failed to fetch restaurant", err);
+        return null;
+      } finally {
+        self.loading = false;
+      }
+    });
+
     const setCurrentPage = (page: number) => {
       self.currentPage = page;
     };
@@ -78,6 +91,7 @@ export const RestaurantStore = types
       setMinRatingFilter,
       setIsPetFriendlyFilter,
       setCuisinesFilter,
+      fetchRestaurantById,
     };
   });
 

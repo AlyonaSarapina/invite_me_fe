@@ -21,7 +21,7 @@ const initialValues: LoginFormValues = {
 function LoginPage() {
   const router = useRouter();
   const { userStore, loginStore } = useStore();
-  const { user, isClient, isOwner } = userStore;
+  const { user } = userStore;
   const { login, error } = loginStore;
 
   const handleSubmit = async (values: LoginFormValues) => {
@@ -32,12 +32,8 @@ function LoginPage() {
   useEffect(() => {
     if (!user) return;
 
-    if (isOwner) {
-      router.push("/owner/restaurants");
-    } else if (isClient) {
-      router.push("client/restaurants");
-    }
-  }, [user, isOwner, isClient]);
+    router.push("user/restaurants");
+  }, [user]);
 
   return (
     <AuthLayout>
