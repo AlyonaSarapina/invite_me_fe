@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Restaurant } from 'src/db/entities/restaurant.entity';
 import { User } from 'src/db/entities/user.entity';
 import { CreateRestaurantDto } from 'src/dto/createRestaurant.dto';
-import { FindOptionsWhere, ILike, IsNull, MoreThanOrEqual, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, In, IsNull, MoreThanOrEqual, Repository } from 'typeorm';
 import { CloudinaryService } from './cloudinary.service';
 import { GetRestaurantsQueryDto } from 'src/dto/getRestaurantQuery.dto';
 import { throwBadRequest, throwNotFound } from 'src/utils/exceprions.utils';
@@ -17,22 +17,26 @@ export class RestaurantsService {
     private cloudinaryService: CloudinaryService,
   ) {}
 
-  async getAll(getRestaurantQueryDto: GetRestaurantsQueryDto): Promise<[Restaurant[], number]> {
-    const { limit = 10, offset = 0, name, min_rating, cuisine, is_pet_friedly } = getRestaurantQueryDto;
+  async getAll(
+    getRestaurantQueryDto: GetRestaurantsQueryDto,
+  ): Promise<{ data: Restaurant[]; total: number; limit: number; offset: number }> {
+    const { limit = 10, offset = 0, name, min_rating, cuisine, is_pet_friendly } = getRestaurantQueryDto;
 
     const where: FindOptionsWhere<Restaurant> = {
       deleted_at: IsNull(),
       ...(min_rating && { rating: MoreThanOrEqual(min_rating) }),
-      ...(cuisine && { cuisine: ILike(cuisine) }),
-      is_pet_friedly,
+      ...(cuisine && { cuisine: In(cuisine) }),
+      is_pet_friendly,
       ...(name && { name: ILike(`%${name}%`) }),
     };
 
-    return await this.restaurantRepo.findAndCount({
+    const [data, total] = await this.restaurantRepo.findAndCount({
       where,
       skip: offset,
       take: limit,
     });
+
+    return { data, total, limit, offset };
   }
 
   async getOwnedRestaurants(ownerId: number): Promise<Restaurant[]> {

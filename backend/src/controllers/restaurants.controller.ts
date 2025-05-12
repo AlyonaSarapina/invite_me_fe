@@ -30,7 +30,9 @@ export class RestaurantsController {
   constructor(private readonly restaurantsService: RestaurantsService) {}
 
   @Get()
-  async getAllRestaurants(@Query() getRestaurantQueryDto: GetRestaurantsQueryDto): Promise<[Restaurant[], number]> {
+  async getAllRestaurants(
+    @Query() getRestaurantQueryDto: GetRestaurantsQueryDto,
+  ): Promise<{ data: Restaurant[]; total: number; limit: number; offset: number }> {
     return this.restaurantsService.getAll(getRestaurantQueryDto);
   }
 

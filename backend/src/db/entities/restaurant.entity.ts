@@ -58,7 +58,7 @@ export class Restaurant {
   rating: number;
 
   @Column()
-  is_pet_friedly: boolean;
+  is_pet_friendly: boolean;
 
   @CreateDateColumn()
   created_at: Date;
