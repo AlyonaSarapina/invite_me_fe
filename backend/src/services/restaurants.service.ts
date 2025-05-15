@@ -27,7 +27,7 @@ export class RestaurantsService {
       ...(min_rating && { rating: MoreThanOrEqual(min_rating) }),
       ...(cuisine && { cuisine: In(cuisine) }),
       is_pet_friendly,
-      ...(name && { name: ILike(`%${name}%`) }),
+      ...(name && { name: ILike(`${name}%`) }),
     };
 
     const [data, total] = await this.restaurantRepo.findAndCount({

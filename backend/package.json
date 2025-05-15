@@ -41,6 +41,7 @@
     "class-validator": "^0.14.1",
     "cloudinary": "^1.41.3",
     "cloudinary-build-url": "^0.2.4",
+    "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
     "joi": "^17.13.3",
     "multer-storage-cloudinary": "^4.0.0",

@@ -11,13 +11,13 @@ import { UsersModule } from './users.module';
 import { TablesModule } from './tables.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ConfigType, appConfigSchema } from '../config/config.types';
-import { typeOrmConfig } from '../config/database.config';
 import { authConfig } from '../config/auth.config';
 import { CloudinaryModule } from './cloudinary.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { multerConfig } from '../config/multer.config';
 import { cloudinaryConfig } from '../config/cloudinary.config';
 import { BookingsModule } from './bookings.module';
+import typeOrmConfig from 'src/config/database.config';
 
 @Module({
   imports: [

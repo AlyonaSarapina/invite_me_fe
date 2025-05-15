@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGua
 import { Booking } from 'src/db/entities/booking.entity';
 import { User } from 'src/db/entities/user.entity';
 import { CurrentUser } from 'src/decorators/user.decorator';
+import { AvailableSlotsDto } from 'src/dto/availibleStot.dto';
 import { CreateBookingDto } from 'src/dto/createBooking.dto';
 import { UpdateBookingStatusDto } from 'src/dto/updateBooking.dto';
 import { UserRole } from 'src/enums/userRole.enum';
@@ -27,13 +28,19 @@ export class BookingsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post(':restaurantId/book')
+  @Post(':id/available-slots')
+  async getAvailableSlots(@Param('id', ParseIntPipe) id: number, @Body() availableSlotsDto: AvailableSlotsDto) {
+    return this.bookingsService.getAvailableBookingSlots(id, availableSlotsDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/book')
   async create(
-    @Param('restaurantId', ParseIntPipe) restaurantId: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() createBookingDto: CreateBookingDto,
     @CurrentUser() user: User,
   ): Promise<Booking> {
-    return this.bookingsService.createBooking(restaurantId, createBookingDto, user);
+    return this.bookingsService.createBooking(id, createBookingDto, user);
   }
 
   @UseGuards(JwtAuthGuard)
