@@ -39,6 +39,15 @@ const Navbar: React.FC<NavbarProps> = ({
     };
   }, []);
 
+  useEffect(() => {
+    if (
+      userStore.user?.role === "client" &&
+      bookingStore.bookings.length === 0
+    ) {
+      bookingStore.fetchBookings();
+    }
+  }, [userStore.user]);
+
   const handleLogoClick = async () => {
     await userStore.checkAuth();
 
@@ -83,7 +92,10 @@ const Navbar: React.FC<NavbarProps> = ({
           } justify-content-end`}
           id="navbarNav"
         >
-          <ul className="navbar-nav mb-2 mb-lg-0 d-flex align-items-lg-center align-items-end gap-lg-4 fw-bold">
+          <ul
+            className="navbar-nav mb-2 mb-lg-0 d-flex align-items-lg-center align-items-end gap-lg-4 fw-bold z-100"
+            style={{ zIndex: 10 }}
+          >
             <li className="nav-item">
               <Link
                 href="/user/restaurants"
@@ -100,6 +112,21 @@ const Navbar: React.FC<NavbarProps> = ({
                 className="nav-link"
               >
                 Bookings
+                {bookingStore.bookings.length > 0 && (
+                  <span
+                    className="position-absolute top-0 end-0 badge rounded-pill bg-primary"
+                    style={{
+                      fontSize: "0.7rem",
+                      transform: "translateX(10px)",
+                    }}
+                  >
+                    {
+                      bookingStore.bookings.filter(
+                        (b) => b.status === "confirmed"
+                      ).length
+                    }
+                  </span>
+                )}
               </Link>
             </li>
             <li className="nav-item">
@@ -127,9 +154,9 @@ const Navbar: React.FC<NavbarProps> = ({
             <li className="nav-item">
               <button
                 onClick={() => {
-                  setIsNavOpen(false);
-                  userStore.removeUser();
                   loginStore.logout();
+                  userStore.removeUser();
+                  setIsNavOpen(false);
                   router.push("/");
                 }}
                 className="nav-link text-secondary p-lg-0"

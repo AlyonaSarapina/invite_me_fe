@@ -88,6 +88,17 @@ const BookingModal: React.FC<BookingModalProps> = ({
     return generateTimeSlots(hours.openingTime, hours.closingTime);
   }, [restaurant?.operating_hours, selectedDate]);
 
+  function getPeriodFromTime(
+    time: string
+  ): "morning" | "lunch" | "dinner" | null {
+    const [hour] = time.split(":").map(Number);
+
+    if (hour >= 8 && hour < 12) return "morning";
+    if (hour >= 12 && hour < 17) return "lunch";
+    if (hour >= 17 && hour < 22) return "dinner";
+    return null;
+  }
+
   const handleFetchAvailableSlots = async () => {
     setAvailableSlotsError("");
     if (!validateForm()) return;
@@ -114,6 +125,28 @@ const BookingModal: React.FC<BookingModalProps> = ({
   const handleBookingCreate = async () => {
     setCreatingBooking(true);
     try {
+      const selectedPeriod = getPeriodFromTime(selectedStartTime);
+      const existingBooking = bookingStore.bookings.find((b) => {
+        if (b.status === "cancelled") {
+          return false;
+        }
+        const bookingDate = b.start_time.split("T")[0];
+        const bookingTime = b.start_time.split("T")[1]?.slice(0, 5);
+        return (
+          bookingDate === selectedDate &&
+          getPeriodFromTime(bookingTime) === selectedPeriod
+        );
+      });
+
+      if (existingBooking) {
+        toast.warn(
+          `⚠️ You already have a ${selectedPeriod}  booking on ${
+            existingBooking.start_time.split("T")[0]
+          }`
+        );
+        return;
+      }
+
       const res = await bookingStore.createBooking(restaurant.id, {
         start_time: selectedTimeSlot,
         num_people: numPeople,
@@ -122,6 +155,7 @@ const BookingModal: React.FC<BookingModalProps> = ({
       if (res.status === "confirmed") {
         toast.success("🎉 Booking confirmed!");
         bookingStore.clearSlots();
+        bookingStore.fetchBookings();
         setShowModal(false);
       } else {
         toast.error("❌ Booking failed. Please try again");

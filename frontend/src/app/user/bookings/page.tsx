@@ -1,12 +1,16 @@
 "use client";
 
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useStore } from "@/stores/context";
 import { toast } from "react-toastify";
 import BookingFilters from "@/components/BookingFilters";
 import BookingItem from "@/components/BookingItem";
 import CancelModal from "@/components/CancelModal";
+import { Pagination } from "react-bootstrap";
+import PaginationControls from "@/components/Pagination";
+
+const BOOKINGS_PER_PAGE = 5;
 
 const BookingsPage = () => {
   const { bookingStore, userStore } = useStore();
@@ -18,6 +22,7 @@ const BookingsPage = () => {
   const [selectedBookingId, setSelectedBookingId] = useState<number | null>(
     null
   );
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     if (userStore.user) fetchBookings();
@@ -42,6 +47,15 @@ const BookingsPage = () => {
     return sortOrder === "newest" ? -diff : diff;
   });
 
+  const startIdx = (currentPage - 1) * BOOKINGS_PER_PAGE;
+
+  const paginatedBookings = sortedAndFiltered.slice(
+    startIdx,
+    startIdx + BOOKINGS_PER_PAGE
+  );
+
+  const handlePageChange = (page: number) => setCurrentPage(page);
+
   const handleCancelConfirm = async () => {
     if (!selectedBookingId) return;
     const res = await cancelBooking(selectedBookingId);
@@ -53,6 +67,10 @@ const BookingsPage = () => {
     }
     setSelectedBookingId(null);
   };
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, restaurantFilter, sortOrder]);
 
   return (
     <div className="container py-5">
@@ -69,11 +87,11 @@ const BookingsPage = () => {
         restaurants={allRestaurants}
       />
 
-      {sortedAndFiltered.length === 0 ? (
+      {paginatedBookings.length === 0 ? (
         <p className="text-muted">No bookings match your filters.</p>
       ) : (
         <div className="d-flex flex-column gap-2">
-          {sortedAndFiltered.map((booking) => (
+          {paginatedBookings.map((booking) => (
             <BookingItem
               key={booking.id}
               booking={booking}
@@ -82,6 +100,13 @@ const BookingsPage = () => {
           ))}
         </div>
       )}
+
+      <PaginationControls
+        totalItems={sortedAndFiltered.length}
+        itemsPerPage={BOOKINGS_PER_PAGE}
+        currentPage={currentPage}
+        onPageChange={handlePageChange}
+      />
 
       <CancelModal
         show={selectedBookingId !== null}

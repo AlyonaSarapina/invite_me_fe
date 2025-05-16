@@ -6,6 +6,9 @@ import { useStore } from "@/stores/context";
 import RestaurantCard from "@/components/RestaurantCard";
 import { useSearchParams } from "next/navigation";
 import Filters from "@/components/Filters";
+import PaginationControls from "@/components/Pagination";
+
+const RESTAURANTS_PER_PAGE = 10;
 
 function RestaurantsList() {
   const { restaurantStore, userStore } = useStore();
@@ -55,13 +58,11 @@ function RestaurantsList() {
     currentPage,
   ]);
 
-  // const handlePageClick = (page: number) => {
-  //   if (page !== currentPage) {
-  //     const current = new URLSearchParams(Array.from(searchParams.entries()));
-  //     current.set("page", String(page));
-  //     router.push(`/user/restaurants?${current.toString()}`);
-  //   }
-  // };
+  const startIdx = (currentPage - 1) * RESTAURANTS_PER_PAGE;
+  const paginatedRestaurants = restaurants.slice(
+    startIdx,
+    startIdx + RESTAURANTS_PER_PAGE
+  );
 
   return (
     <div className="container py-5">
@@ -74,22 +75,20 @@ function RestaurantsList() {
             <Filters />
           </div>
         </div>
-        <div className="col-12 ps-md-4">
+        <div className="col-12">
           <div className="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
-            {restaurants.map((restaurant) => (
+            {paginatedRestaurants.map((restaurant) => (
               <div className="col" key={restaurant.id}>
                 <RestaurantCard restaurant={restaurant} />
               </div>
             ))}
-          </div>
-          {/* <div className="d-flex justify-content-center mt-4">
-            <Pagination
+            <PaginationControls
+              totalItems={restaurants.length}
+              itemsPerPage={RESTAURANTS_PER_PAGE}
               currentPage={currentPage}
-              totalItems={totalCount}
-              itemsPerPage={10}
-              onPageChange={handlePageClick}
+              onPageChange={setCurrentPage}
             />
-          </div> */}
+          </div>
         </div>
       </div>
     </div>

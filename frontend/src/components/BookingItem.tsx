@@ -53,7 +53,9 @@ const BookingItem: React.FC<BookingItemProps> = ({ booking, onCancel }) => {
                 ? "border border-dark text-dark"
                 : booking.status === "confirmed"
                 ? "border border-success text-success"
-                : "bg-danger"
+                : booking.status === "completed"
+                ? "border border-primary text-primary"
+                : "bg-dander"
             }`}
           >
             {booking.status}
@@ -65,7 +67,7 @@ const BookingItem: React.FC<BookingItemProps> = ({ booking, onCancel }) => {
             <div style={{ width: "80px" }} />
           ) : (
             <button
-              className="btn btn-sm btn-outline-danger flex-grow-1 align-self-md-end align-self-sm-start"
+              className="btn btn-sm btn-outline-danger align-self-md-end align-self-start"
               onClick={() => onCancel(booking.id)}
             >
               Cancel
