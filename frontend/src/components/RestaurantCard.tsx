@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { RestaurantCardData } from "@/types/RestaurantCardData";
 
@@ -8,7 +10,7 @@ type Props = {
 export default function RestaurantCard({ restaurant }: Props) {
   return (
     <div
-      className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden p-3"
+      className="card h-100 shadow-sm border-0 overflow-hidden p-3"
       style={{ maxWidth: "300px", margin: "0 auto" }}
     >
       <div className="position-relative mb-3">
@@ -27,7 +29,7 @@ export default function RestaurantCard({ restaurant }: Props) {
       </div>
 
       <div className="d-flex flex-column justify-content-between">
-        <div className="d-flex justify-content-between align-items mb-2">
+        <div className="d-flex justify-content-between mb-2">
           <h5
             className="card-title fw-bold text-dark mb-0"
             style={{ fontSize: "1rem" }}
@@ -38,29 +40,20 @@ export default function RestaurantCard({ restaurant }: Props) {
             ⭐️ {+restaurant.rating}
           </span>
         </div>
-        <div className="d-flex justify-content-between align-items-center mt-auto">
-          <div className="w-100">
-            <div
-              className="text-dark mb-2 small"
-              style={{ fontSize: "0.875rem" }}
-            >
-              🍽️ {restaurant.cuisine}
-            </div>
-            {restaurant.is_pet_friendly && (
-              <div className="text-dark small mb-2">🐾 Pet Friendly</div>
-            )}
-            <div className="text-dark small">
-              📍 {restaurant.address.split(",")[1] || "City"}
-            </div>
+        <div className="d-flex justify-content-between flex-column gap-2">
+          <div className="text-dark small" style={{ fontSize: "0.875rem" }}>
+            🍽️ {restaurant.cuisine}
           </div>
-          <div className="align-self-end">
-            <Link
-              href={`/user/restaurants/${restaurant.id}`}
-              className="btn btn-sm btn-outline-success px-3 rounded fw-bold"
-            >
-              View Details
-            </Link>
+          <div className="text-dark small">
+            📍
+            {restaurant.address.split(" ").reverse()[0]}
           </div>
+          <Link
+            href={`/user/restaurants/${restaurant.id}`}
+            className="btn btn-sm btn-outline-secondary rounded fw-bold w-100"
+          >
+            View Details
+          </Link>
         </div>
       </div>
     </div>

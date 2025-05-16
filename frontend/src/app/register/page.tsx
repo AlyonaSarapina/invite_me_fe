@@ -13,6 +13,7 @@ import AuthLayout from "@/components/AuthLayout";
 import FormInput from "@/components/FormInput";
 import { RegisterFormValues } from "@/types/auth";
 import styles from "@/styles/Form.module.css";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 const initialValues: RegisterFormValues = {
   name: "",
@@ -25,6 +26,7 @@ const initialValues: RegisterFormValues = {
 
 function RegisterPage() {
   const router = useRouter();
+  const { authChecked } = useAuthRedirect();
   const { registerStore } = useStore();
   const { register, error } = registerStore;
 
@@ -36,6 +38,10 @@ function RegisterPage() {
 
     router.push("/");
   };
+
+  if (!authChecked) {
+    return <div className="text-center py-5">Loading...</div>;
+  }
 
   const handlePhoneChange = (
     setFieldValue: (field: string, value: any) => void,

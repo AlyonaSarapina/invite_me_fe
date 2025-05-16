@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { observer } from "mobx-react";
 import { useStore } from "@/stores/context";
@@ -12,6 +10,8 @@ import { toFormikValidationSchema } from "zod-formik-adapter";
 import FormInput from "@/components/FormInput";
 import { LoginFormValues } from "@/types/auth";
 import styles from "@/styles/Form.module.css";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
+import { useRouter } from "next/navigation";
 
 const initialValues: LoginFormValues = {
   email: "",
@@ -19,21 +19,24 @@ const initialValues: LoginFormValues = {
 };
 
 function LoginPage() {
-  const router = useRouter();
   const { userStore, loginStore } = useStore();
-  const { user } = userStore;
+  const { checkAuth } = userStore;
   const { login, error } = loginStore;
+  const { authChecked } = useAuthRedirect();
+  const router = useRouter();
 
   const handleSubmit = async (values: LoginFormValues) => {
     await login(values.email, values.password);
-    await userStore.checkAuth();
+    await checkAuth();
+
+    if (userStore.user) {
+      router.push("/user/restaurants");
+    }
   };
 
-  useEffect(() => {
-    if (!user) return;
-
-    router.push("user/restaurants");
-  }, [user]);
+  if (!authChecked) {
+    return <div className="text-center py-5">Loading...</div>;
+  }
 
   return (
     <AuthLayout>

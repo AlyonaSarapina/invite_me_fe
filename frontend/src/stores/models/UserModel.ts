@@ -6,9 +6,12 @@ export const UserModel = types.model("UserModel", {
   name: types.string,
   email: types.string,
   phone: types.string,
-  role: types.enumeration(Object.values(UserRole)),
+  role: types.string,
+  date_of_birth: types.string,
+  created_at: types.string,
+  updated_at: types.string,
+  deleted_at: types.maybeNull(types.string),
   profile_pic_url: types.maybeNull(types.string),
-  date_of_birth: types.maybeNull(types.string),
 });
 
 export interface IUser extends Instance<typeof UserModel> {}

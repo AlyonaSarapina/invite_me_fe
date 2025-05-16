@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { useStore } from "@/stores/context";
 import RestaurantCard from "@/components/RestaurantCard";
-import { useRouter, useSearchParams } from "next/navigation";
-import Pagination from "@/components/Paginations";
+import { useSearchParams } from "next/navigation";
 import Filters from "@/components/Filters";
 
 function RestaurantsList() {
@@ -41,11 +40,14 @@ function RestaurantsList() {
 
   useEffect(() => {
     syncParamsToStore();
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
-    fetchRestaurants();
+    if (userStore.user) {
+      fetchRestaurants();
+    }
   }, [
+    userStore.user,
     filters.name,
     filters.minRating,
     filters.isPetFriendly,
@@ -63,14 +65,17 @@ function RestaurantsList() {
 
   return (
     <div className="container py-5">
+      <h2 className="mb-4 fw-bold text-light text-stroke text-outline-dark">
+        Explore Restaurants
+      </h2>
       <div className="row">
-        <div className="mb-4 p-3 rounded">
+        <div className="mb-4">
           <div className="d-md-block">
             <Filters />
           </div>
         </div>
-        <div className="col-12 col-md-9 ps-md-4">
-          <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+        <div className="col-12 ps-md-4">
+          <div className="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
             {restaurants.map((restaurant) => (
               <div className="col" key={restaurant.id}>
                 <RestaurantCard restaurant={restaurant} />

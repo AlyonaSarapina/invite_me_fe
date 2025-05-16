@@ -1,11 +1,12 @@
 "use client";
 
 import "bootstrap/dist/css/bootstrap.min.css";
+import "../styles/global.css";
+import "react-phone-input-2/lib/bootstrap.css";
+
 import { ReactNode } from "react";
 import { StoreProvider } from "@/stores/context";
 import { store } from "@/stores";
-import Head from "next/head";
-import "react-phone-input-2/lib/bootstrap.css";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

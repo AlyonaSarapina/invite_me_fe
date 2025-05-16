@@ -106,19 +106,19 @@ const Filters: React.FC = () => {
   };
 
   return (
-    <div className="mb-4 position-relative">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <div className="position-relative">
+      <div className="d-flex align-items-center justify-content-between gap-2">
         <input
           type="text"
           placeholder="Search by name"
           value={localSearch}
           onChange={handleSearchChange}
-          className="form-control rounded-pill me-3"
+          className="form-control fw-semibold me-3"
           style={{ maxWidth: "300px" }}
         />
         <button
           ref={buttonRef}
-          className="btn btn-primary rounded-pill"
+          className={`btn btn-outline-secondary bg-light text-black fw-semibold ${styles.responsiveBtn}`}
           onClick={() => {
             setShowCuisines(false);
             setShowFilters(!showFilters);
@@ -131,11 +131,11 @@ const Filters: React.FC = () => {
       {showFilters && (
         <div
           ref={filterRef}
-          className={`bg-white mt-2 p-3 rounded shadow-sm ms-auto border ${
+          className={`bg-white p-3 rounded shadow-sm ms-auto border ${
             styles.filtersContainer
           } ${showFilters ? styles.filtersShow : styles.filtersHide}`}
           style={{
-            maxWidth: "250px",
+            maxWidth: "300px",
             zIndex: 10,
           }}
         >
