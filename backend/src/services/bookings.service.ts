@@ -30,8 +30,9 @@ export class BookingsService {
 
   async getClientsBookings(userId: number): Promise<Booking[]> {
     return this.bookingRepo.find({
-      where: { client: { id: userId }, deleted_at: IsNull() },
+      where: { client: { id: userId } },
       relations: ['table', 'table.restaurant', 'client'],
+      withDeleted: true,
     });
   }
 
@@ -141,6 +142,10 @@ export class BookingsService {
     const interval = 30;
 
     const weekDay = DaysMap[new Date(date).getDay()];
+
+    if (!operating_hours[weekDay]) {
+      throwNotFound(`Operating hours not defined for day: ${weekDay}`);
+    }
 
     const workingHoursEndStr = `${date}T${operating_hours[weekDay].split('-').map((s) => s.trim())[1]}:00`;
 
