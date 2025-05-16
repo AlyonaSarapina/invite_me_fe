@@ -1,4 +1,4 @@
-import { Instance, flow, types } from "mobx-state-tree";
+import { Instance, cast, flow, types } from "mobx-state-tree";
 import { api } from "@/utils/axios";
 import RestaurantModel from "./models/RestaurantModel";
 import FiltersModel from "./models/FiltersModel";
@@ -41,10 +41,24 @@ export const RestaurantStore = types
         query.set("limit", limit.toString());
 
         const res = yield api.get(`/restaurants?${query.toString()}`);
+
         self.restaurants = res.data.data;
         self.totalCount = res.data.total;
       } catch (err) {
         console.error("Failed to fetch restaurants", err);
+      } finally {
+        self.loading = false;
+      }
+    });
+
+    const fetchRestaurantById = flow(function* (id: string) {
+      self.loading = true;
+      try {
+        const res = yield api.get(`/restaurants/${id}`);
+        return res.data;
+      } catch (err) {
+        console.error("Failed to fetch restaurant", err);
+        return null;
       } finally {
         self.loading = false;
       }
@@ -68,7 +82,7 @@ export const RestaurantStore = types
 
     const setCuisinesFilter = (newCuisines: Array<string>) => {
       self.filters.cuisines.clear();
-      newCuisines.forEach((cuisine) => self.filters.cuisines.push(cuisine));
+      self.filters.cuisines = cast(newCuisines);
     };
 
     return {
@@ -78,6 +92,7 @@ export const RestaurantStore = types
       setMinRatingFilter,
       setIsPetFriendlyFilter,
       setCuisinesFilter,
+      fetchRestaurantById,
     };
   });
 

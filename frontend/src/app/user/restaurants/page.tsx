@@ -1,13 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { useStore } from "@/stores/context";
 import RestaurantCard from "@/components/RestaurantCard";
-import { useRouter, useSearchParams } from "next/navigation";
-import Pagination from "@/components/Paginations";
+import { useSearchParams } from "next/navigation";
 import Filters from "@/components/Filters";
-import styles from "@/styles/RestaurantsPage.module.css";
 
 function RestaurantsList() {
   const { restaurantStore, userStore } = useStore();
@@ -23,9 +21,6 @@ function RestaurantsList() {
     setCuisinesFilter,
   } = restaurantStore;
   const searchParams = useSearchParams();
-  const [showFilters, setShowFilters] = useState(false);
-
-  const toggleFilters = () => setShowFilters((prev) => !prev);
 
   const syncParamsToStore = () => {
     const page = parseInt(searchParams.get("page") || "1", 10);
@@ -45,11 +40,14 @@ function RestaurantsList() {
 
   useEffect(() => {
     syncParamsToStore();
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
-    fetchRestaurants();
+    if (userStore.user) {
+      fetchRestaurants();
+    }
   }, [
+    userStore.user,
     filters.name,
     filters.minRating,
     filters.isPetFriendly,
@@ -61,38 +59,23 @@ function RestaurantsList() {
   //   if (page !== currentPage) {
   //     const current = new URLSearchParams(Array.from(searchParams.entries()));
   //     current.set("page", String(page));
-  //     router.push(`/client/restaurants?${current.toString()}`);
+  //     router.push(`/user/restaurants?${current.toString()}`);
   //   }
   // };
 
   return (
     <div className="container py-5">
-      <button
-        className="btn btn-outline-secondary d-md-none"
-        onClick={toggleFilters}
-      >
-        {showFilters ? "Hide Filters" : "Show Filters"}
-      </button>
-
+      <h2 className="mb-4 fw-bold text-light text-stroke text-outline-dark">
+        Explore Restaurants
+      </h2>
       <div className="row">
-        <div className="col-md-3 mb-4 border-end bg-light p-3 rounded">
-          <div className="d-none d-md-block">
+        <div className="mb-4">
+          <div className="d-md-block">
             <Filters />
           </div>
-          {showFilters && (
-            <div className={`d-md-none mt-3 ${styles.mobileFilterOverlay}`}>
-              <Filters />
-              <button
-                className="btn btn-outline-secondary mb-3"
-                onClick={toggleFilters}
-              >
-                Close Filters
-              </button>
-            </div>
-          )}
         </div>
-        <div className="col-md-9 ps-md-4">
-          <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div className="col-12 ps-md-4">
+          <div className="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
             {restaurants.map((restaurant) => (
               <div className="col" key={restaurant.id}>
                 <RestaurantCard restaurant={restaurant} />

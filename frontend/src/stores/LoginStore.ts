@@ -1,4 +1,4 @@
-import { types, flow, Instance, getParent } from "mobx-state-tree";
+import { types, flow, Instance } from "mobx-state-tree";
 import { api } from "@/utils/axios";
 import { RootStore } from "./RootStore";
 

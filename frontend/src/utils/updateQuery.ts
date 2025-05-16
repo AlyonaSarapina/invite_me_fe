@@ -13,5 +13,5 @@ export const updateQueryParam = (
 
   current.delete("page");
 
-  router.push(`/client/restaurants?${current.toString()}`);
+  router.push(`/user/restaurants?${current.toString()}`);
 };

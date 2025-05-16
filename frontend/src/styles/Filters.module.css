@@ -1,0 +1,23 @@
+.filtersContainer {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  opacity: 0;
+  transform: translateY(-10px); 
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.filtersShow {
+  opacity: 1;
+  transform: translateY(0); 
+}
+
+.filtersHide {
+  opacity: 0;
+  transform: translateY(-10px); 
+}
+
+.responsiveBtn {
+  font-size: 0.875rem;
+  padding: 0.375rem 0.75rem;
+}

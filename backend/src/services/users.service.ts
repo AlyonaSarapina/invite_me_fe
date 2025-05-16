@@ -48,7 +48,9 @@ export class UsersService {
   async uploadFile(user: User, file: Express.Multer.File): Promise<Omit<User, 'password'>> {
     if (!file) throwBadRequest('File is required');
 
-    await this.cloudinaryService.deleteFile(user.profile_pic_url);
+    if (user.profile_pic_url !== null) {
+      await this.cloudinaryService.deleteFile(user.profile_pic_url);
+    }
 
     const result = await this.cloudinaryService.uploadFile(file, 'users');
 

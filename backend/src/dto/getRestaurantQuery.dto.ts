@@ -1,5 +1,6 @@
-import { IsOptional, IsString, IsNumber, Min, Max, IsBoolean } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsOptional, IsString, IsNumber, Min, Max, IsBoolean, IsIn, IsArray } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { CUISINES } from 'src/enums/cuisinesEnum';
 
 export class GetRestaurantsQueryDto {
   @IsOptional()
@@ -7,8 +8,10 @@ export class GetRestaurantsQueryDto {
   name?: string;
 
   @IsOptional()
-  @IsString()
-  cuisine?: string;
+  @Transform(({ value }) => (typeof value === 'string' ? value.split(',').map((c: string) => c.trim()) : value))
+  @IsArray()
+  @IsIn(CUISINES, { each: true })
+  cuisine?: string[];
 
   @IsOptional()
   @Type(() => Number)
@@ -19,7 +22,7 @@ export class GetRestaurantsQueryDto {
   @IsOptional()
   @Type(() => Boolean)
   @IsBoolean()
-  is_pet_friedly?: boolean;
+  is_pet_friendly?: boolean;
 
   @IsOptional()
   @Type(() => Number)
