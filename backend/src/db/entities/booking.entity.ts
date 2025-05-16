@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   JoinColumn,
   JoinTable,
   ManyToOne,
@@ -25,6 +26,7 @@ export class Booking {
   start_time: Date;
 
   @Column({ type: 'timestamptz' })
+  @Index()
   end_time: Date;
 
   @Column({ type: 'enum', enum: BookingStatus, default: BookingStatus.CONFIRMED })

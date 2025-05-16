@@ -28,12 +28,26 @@ export class BookingsService {
     private readonly tableService: TablesService,
   ) {}
 
+  private async updateExpiredBookings(bookings: Booking[]): Promise<Booking[]> {
+    const now = new Date();
+    const expired = bookings.filter((b) => b.status === BookingStatus.CONFIRMED && b.end_time < now);
+
+    for (const booking of expired) {
+      booking.status = BookingStatus.COMPLETED;
+      await this.bookingRepo.save(booking);
+    }
+
+    return bookings;
+  }
+
   async getClientsBookings(userId: number): Promise<Booking[]> {
-    return this.bookingRepo.find({
+    const bookings = await this.bookingRepo.find({
       where: { client: { id: userId } },
       relations: ['table', 'table.restaurant', 'client'],
       withDeleted: true,
     });
+
+    return await this.updateExpiredBookings(bookings);
   }
 
   async getOwnersBookings(userId: number): Promise<Booking[]> {
@@ -45,13 +59,15 @@ export class BookingsService {
 
     if (!tableIds.length) return [];
 
-    return this.bookingRepo.find({
+    const bookings = await this.bookingRepo.find({
       where: {
         table: In(tableIds),
         deleted_at: IsNull(),
       },
       relations: ['table', 'client'],
     });
+
+    return await this.updateExpiredBookings(bookings);
   }
 
   async createBooking(restaurantId: number, createBookingDto: CreateBookingDto, user: User): Promise<Booking> {
