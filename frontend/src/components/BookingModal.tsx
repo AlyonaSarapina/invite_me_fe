@@ -9,12 +9,13 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { RestaurantDetails } from "@/types/RestaurantDetails";
+import { RestaurantDetails } from "@/types/RestaurantToEdit";
 import { observer } from "mobx-react-lite";
 import { toast } from "react-toastify";
 import { useBookingForm } from "@/hooks/useBookingForm";
 import { generateTimeSlots } from "@/utils/timeSlots";
 import { AvailableSlots } from "./AvailableSlots";
+import { Modal, Button, Form, Spinner, Alert } from "react-bootstrap";
 
 interface BookingModalProps {
   restaurant: RestaurantDetails;
@@ -25,7 +26,7 @@ const BookingModal: React.FC<BookingModalProps> = ({
   restaurant,
   setShowModal,
 }) => {
-  const { bookingStore } = useStore();
+  const { bookingStore, userStore } = useStore();
   const {
     selectedDate,
     numPeople,
@@ -35,28 +36,26 @@ const BookingModal: React.FC<BookingModalProps> = ({
     setNumPeople,
     setSelectedStartTime,
     setSelectedTimeSlot,
+    clientPhoneNumber,
+    setClientPhoneNumber,
     errors,
     validateForm,
     resetForm,
     minDate,
     maxDate,
   } = useBookingForm();
+
   const [availableSlotsError, setAvailableSlotsError] = useState<string>("");
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [creatingBooking, setCreatingBooking] = useState(false);
-
   const dateInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     dateInputRef.current?.focus();
   }, []);
 
-  const getTodayHours = (): {
-    openingTime: string;
-    closingTime: string;
-  } | null => {
+  const getTodayHours = () => {
     if (!restaurant?.operating_hours) return null;
-
     const weekDays = [
       "Sunday",
       "Monday",
@@ -66,25 +65,19 @@ const BookingModal: React.FC<BookingModalProps> = ({
       "Friday",
       "Saturday",
     ];
-
     const today = weekDays[new Date(selectedDate || new Date()).getDay()];
-
     const todayHours = restaurant.operating_hours[today];
-
     if (!todayHours) return null;
 
     const [openingTime, closingTime] = todayHours
       .split("-")
       .map((t) => t.trim());
-
     return { openingTime, closingTime };
   };
 
   const timeSlots = useMemo(() => {
     const hours = getTodayHours();
-
     if (!hours) return [];
-
     return generateTimeSlots(hours.openingTime, hours.closingTime);
   }, [restaurant?.operating_hours, selectedDate]);
 
@@ -92,7 +85,6 @@ const BookingModal: React.FC<BookingModalProps> = ({
     time: string
   ): "morning" | "lunch" | "dinner" | null {
     const [hour] = time.split(":").map(Number);
-
     if (hour >= 8 && hour < 12) return "morning";
     if (hour >= 12 && hour < 17) return "lunch";
     if (hour >= 17 && hour < 22) return "dinner";
@@ -111,7 +103,6 @@ const BookingModal: React.FC<BookingModalProps> = ({
         numPeople,
         selectedStartTime
       );
-
       if (bookingStore.availableSlots.length === 0) {
         setAvailableSlotsError("No available slots for chosen time.");
       }
@@ -124,12 +115,11 @@ const BookingModal: React.FC<BookingModalProps> = ({
 
   const handleBookingCreate = async () => {
     setCreatingBooking(true);
+
     try {
       const selectedPeriod = getPeriodFromTime(selectedStartTime);
       const existingBooking = bookingStore.bookings.find((b) => {
-        if (b.status === "cancelled") {
-          return false;
-        }
+        if (b.status === "cancelled") return false;
         const bookingDate = b.start_time.split("T")[0];
         const bookingTime = b.start_time.split("T")[1]?.slice(0, 5);
         return (
@@ -140,7 +130,7 @@ const BookingModal: React.FC<BookingModalProps> = ({
 
       if (existingBooking) {
         toast.warn(
-          `⚠️ You already have a ${selectedPeriod}  booking on ${
+          `⚠️ You already have a ${selectedPeriod} booking on ${
             existingBooking.start_time.split("T")[0]
           }`
         );
@@ -150,6 +140,8 @@ const BookingModal: React.FC<BookingModalProps> = ({
       const res = await bookingStore.createBooking(restaurant.id, {
         start_time: selectedTimeSlot,
         num_people: numPeople,
+        clientPhoneNumber:
+          userStore.user?.role === "owner" ? clientPhoneNumber : undefined,
       });
 
       if (res.status === "confirmed") {
@@ -167,131 +159,121 @@ const BookingModal: React.FC<BookingModalProps> = ({
     }
   };
 
+  const handleClose = () => {
+    bookingStore.clearSlots();
+    resetForm();
+    setShowModal(false);
+  };
+
   return (
-    <>
-      <div className="modal-backdrop fade show"></div>
-      <div
-        className="modal fade show d-block"
-        tabIndex={-1}
-        role="dialog"
-        aria-modal="true"
-      >
-        <div className="modal-dialog modal-dialog-centered" role="document">
-          <div className="modal-content p-3">
-            <div className="modal-header">
-              <h5 className="modal-title">Book a Table</h5>
-              <button
-                type="button"
-                className="btn-close"
-                aria-label="Close"
-                onClick={() => {
-                  bookingStore.clearSlots();
-                  resetForm();
-                  setShowModal(false);
-                }}
-              ></button>
-            </div>
+    <Modal show onHide={handleClose} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>Book a Table</Modal.Title>
+      </Modal.Header>
 
-            <div className="modal-body">
-              <div className="form-group mb-3">
-                <label htmlFor="date">Select Date</label>
-                <input
-                  type="date"
-                  ref={dateInputRef}
-                  id="date"
-                  className={`form-control ${errors.date ? "is-invalid" : ""}`}
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  min={minDate}
-                  max={maxDate}
-                />
-                {errors.date && (
-                  <div className="invalid-feedback">{errors.date}</div>
-                )}
-              </div>
+      <Modal.Body>
+        <Form.Group className="mb-3" controlId="date">
+          <Form.Label>Select Date</Form.Label>
+          <Form.Control
+            type="date"
+            ref={dateInputRef}
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            isInvalid={!!errors.date}
+            min={minDate}
+            max={maxDate}
+          />
+          <Form.Control.Feedback type="invalid">
+            {errors.date}
+          </Form.Control.Feedback>
+        </Form.Group>
 
-              <div className="form-group mb-3">
-                <label htmlFor="startTime">Desired Start Time</label>
-                <select
-                  id="startTime"
-                  className={`form-select ${errors.time ? "is-invalid" : ""}`}
-                  value={selectedStartTime}
-                  onChange={(e) => setSelectedStartTime(e.target.value)}
-                  disabled={timeSlots.length === 0}
-                >
-                  <option value="">Select a time</option>
-                  {timeSlots.map((slot) => (
-                    <option key={slot} value={slot}>
-                      {slot}
-                    </option>
-                  ))}
-                </select>
-                {errors.time && (
-                  <div className="invalid-feedback">{errors.time}</div>
-                )}
-              </div>
+        <Form.Group className="mb-3" controlId="startTime">
+          <Form.Label>Desired Start Time</Form.Label>
+          <Form.Select
+            value={selectedStartTime}
+            onChange={(e) => setSelectedStartTime(e.target.value)}
+            isInvalid={!!errors.time}
+            disabled={timeSlots.length === 0}
+          >
+            <option value="">Select a time</option>
+            {timeSlots.map((slot) => (
+              <option key={slot} value={slot}>
+                {slot}
+              </option>
+            ))}
+          </Form.Select>
+          <Form.Control.Feedback type="invalid">
+            {errors.time}
+          </Form.Control.Feedback>
+        </Form.Group>
 
-              <div className="form-group mb-3">
-                <label htmlFor="numPeople">Number of People</label>
-                <input
-                  type="number"
-                  id="numPeople"
-                  className={`form-control ${
-                    errors.people ? "is-invalid" : ""
-                  }`}
-                  value={numPeople}
-                  onChange={(e) => setNumPeople(Number(e.target.value))}
-                  min="1"
-                />
-                {errors.people && (
-                  <div className="invalid-feedback">{errors.people}</div>
-                )}
-              </div>
+        <Form.Group className="mb-3" controlId="numPeople">
+          <Form.Label>Number of People</Form.Label>
+          <Form.Control
+            type="number"
+            value={numPeople}
+            onChange={(e) => setNumPeople(Number(e.target.value))}
+            min={1}
+            isInvalid={!!errors.people}
+          />
+          <Form.Control.Feedback type="invalid">
+            {errors.people}
+          </Form.Control.Feedback>
+        </Form.Group>
 
-              <button
-                className="btn btn-primary w-100 mb-3"
-                onClick={handleFetchAvailableSlots}
-                disabled={loadingSlots}
-              >
-                {loadingSlots ? "Checking..." : "Check Available Slots"}
-              </button>
+        {userStore.user?.role === "owner" && (
+          <Form.Group className="mb-3" controlId="clientPhoneNumber">
+            <Form.Label>Client Phone Number</Form.Label>
+            <Form.Control
+              type="tel"
+              placeholder="e.g., 441234567890"
+              value={clientPhoneNumber}
+              onChange={(e) => setClientPhoneNumber(e.target.value)}
+              required
+            />
+          </Form.Group>
+        )}
 
-              {availableSlotsError && (
-                <div className="text-danger mb-2">{availableSlotsError}</div>
-              )}
+        <Button
+          variant="primary"
+          className="w-100 mb-3"
+          onClick={handleFetchAvailableSlots}
+          disabled={loadingSlots}
+        >
+          {loadingSlots ? (
+            <Spinner animation="border" size="sm" />
+          ) : (
+            "Check Available Slots"
+          )}
+        </Button>
 
-              {bookingStore.availableSlots.length > 0 && (
-                <AvailableSlots
-                  slots={bookingStore.availableSlots}
-                  selectedSlot={selectedTimeSlot}
-                  setSelectedSlot={setSelectedTimeSlot}
-                />
-              )}
-            </div>
+        {availableSlotsError && (
+          <Alert variant="danger">{availableSlotsError}</Alert>
+        )}
 
-            <div className="modal-footer">
-              <button
-                className="btn btn-success"
-                onClick={handleBookingCreate}
-                disabled={!selectedTimeSlot || creatingBooking}
-              >
-                {creatingBooking ? "Booking..." : "Confirm Booking"}
-              </button>
-              <button
-                className="btn btn-secondary"
-                onClick={() => {
-                  bookingStore.clearSlots();
-                  resetForm();
-                  setShowModal(false);
-                }}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
+        {bookingStore.availableSlots.length > 0 && (
+          <AvailableSlots
+            slots={bookingStore.availableSlots}
+            selectedSlot={selectedTimeSlot}
+            setSelectedSlot={setSelectedTimeSlot}
+          />
+        )}
+      </Modal.Body>
+
+      <Modal.Footer>
+        <Button
+          variant="success"
+          onClick={handleBookingCreate}
+          disabled={!selectedTimeSlot || !clientPhoneNumber || creatingBooking}
+        >
+          {creatingBooking ? "Booking..." : "Confirm Booking"}
+        </Button>
+        <Button variant="secondary" onClick={handleClose}>
+          Cancel
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 };
 

@@ -26,43 +26,41 @@ const ProfilePicUploader = () => {
 
   return (
     <div>
-      {userStore.user?.profile_pic_url && (
-        <div className="position-relative d-inline-block mb-2">
-          <img
-            src={
-              userStore.user?.profile_pic_url
-                ? userStore.user.profile_pic_url
-                : "/user.png"
-            }
-            alt="Profile"
-            className="img-fluid rounded-circle"
-            style={{ width: "200px", height: "200px", objectFit: "cover" }}
-          />
+      <div className="position-relative d-inline-block mb-2">
+        <img
+          src={
+            userStore.user?.profile_pic_url
+              ? userStore.user.profile_pic_url
+              : "/user.png"
+          }
+          alt="Profile"
+          className="img-fluid rounded-circle"
+          style={{ width: "200px", height: "200px", objectFit: "cover" }}
+        />
 
-          <input
-            id="profile-pic"
-            type="file"
-            accept="image/*"
-            onChange={handleUpload}
-            style={{ display: "none" }}
-            disabled={uploading}
-          />
+        <input
+          id="profile-pic"
+          type="file"
+          accept="image/*"
+          onChange={handleUpload}
+          style={{ display: "none" }}
+          disabled={uploading}
+        />
 
-          <label
-            htmlFor="profile-pic"
-            className="position-absolute bottom-0 end-0 text-primary p-1"
-            title="Change photo"
-            style={{ cursor: "pointer" }}
-          >
-            <i
-              className="fa-solid fa-circle-user"
-              style={{
-                fontSize: "36px",
-              }}
-            ></i>
-          </label>
-        </div>
-      )}
+        <label
+          htmlFor="profile-pic"
+          className="position-absolute bottom-0 end-0 text-primary p-1"
+          title="Change photo"
+          style={{ cursor: "pointer" }}
+        >
+          <i
+            className="fa-solid fa-circle-user"
+            style={{
+              fontSize: "36px",
+            }}
+          ></i>
+        </label>
+      </div>
 
       {uploading && (
         <div className="progress mt-2">

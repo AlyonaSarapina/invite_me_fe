@@ -15,7 +15,7 @@ import { useStore } from "@/stores/context";
 import { Cuisine } from "@/types/enums";
 import styles from "@/styles/Filters.module.css";
 
-const Filters: React.FC = () => {
+const Filters = () => {
   const { restaurantStore } = useStore();
   const [showFilters, setShowFilters] = useState(false);
   const [showCuisines, setShowCuisines] = useState(false);

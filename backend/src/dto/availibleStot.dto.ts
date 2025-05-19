@@ -1,4 +1,4 @@
-import { IsDateString, IsInt, IsString, Matches, Min } from 'class-validator';
+import { IsDateString, IsInt, IsOptional, IsPhoneNumber, Matches, Min } from 'class-validator';
 
 export class AvailableSlotsDto {
   @IsDateString()

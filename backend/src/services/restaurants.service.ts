@@ -18,9 +18,10 @@ export class RestaurantsService {
   ) {}
 
   async getAll(
-    getRestaurantQueryDto: GetRestaurantsQueryDto,
+    user: User,
+    query: GetRestaurantsQueryDto,
   ): Promise<{ data: Restaurant[]; total: number; limit: number; offset: number }> {
-    const { limit = 10, offset = 0, name, min_rating, cuisine, is_pet_friendly } = getRestaurantQueryDto;
+    const { limit = 10, offset = 0, name, min_rating, cuisine, is_pet_friendly } = query;
 
     const where: FindOptionsWhere<Restaurant> = {
       deleted_at: IsNull(),
@@ -30,10 +31,15 @@ export class RestaurantsService {
       ...(name && { name: ILike(`${name}%`) }),
     };
 
+    if (user.role === 'owner') {
+      where.owner = { id: user.id };
+    }
+
     const [data, total] = await this.restaurantRepo.findAndCount({
       where,
-      skip: offset,
+      relations: ['owner', 'tables'],
       take: limit,
+      skip: offset,
     });
 
     return { data, total, limit, offset };
@@ -61,7 +67,7 @@ export class RestaurantsService {
   async getRestaurantById(id: number) {
     return await this.restaurantRepo.findOneOrFail({
       where: { id, deleted_at: IsNull() },
-      relations: ['tables', 'tables.bookings'],
+      relations: ['tables', 'tables.bookings', 'owner'],
     });
   }
 
@@ -70,6 +76,7 @@ export class RestaurantsService {
       ...dto,
       owner,
     });
+
     return await this.restaurantRepo.save(restaurant);
   }
 

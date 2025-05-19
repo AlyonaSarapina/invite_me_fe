@@ -25,7 +25,7 @@ const initialValues: RegisterFormValues = {
   role: "client",
 };
 
-function RegisterPage() {
+const RegisterPage = () => {
   const router = useRouter();
   const { authChecked } = useAuthRedirect();
   const { registerStore } = useStore();
@@ -42,8 +42,8 @@ function RegisterPage() {
 
       router.push("/");
     } catch (err) {
-      toast.error("Something went wrong!");
       console.log(err);
+      toast.error("Something went wrong");
     }
   };
 
@@ -181,6 +181,6 @@ function RegisterPage() {
       </Formik>
     </AuthLayout>
   );
-}
+};
 
 export default observer(RegisterPage);

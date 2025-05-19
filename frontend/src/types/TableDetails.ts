@@ -1,4 +1,4 @@
-import { RestaurantDetails } from "./RestaurantDetails";
+import { RestaurantDetails } from "./RestaurantToEdit";
 
 export type TableDetails = {
   id: number;

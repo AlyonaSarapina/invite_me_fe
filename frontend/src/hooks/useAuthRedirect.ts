@@ -10,15 +10,18 @@ export function useAuthRedirect() {
   const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    const check = async () => {
-      await userStore.checkAuth();
-      if (userStore.user) {
-        router.replace("/user/restaurants");
-      } else {
-        setAuthChecked(true);
-      }
-    };
-    check();
+    if (!userStore.authInitialized) {
+      userStore.checkAuth().finally(() => {
+        if (userStore.user) {
+          setAuthChecked(true);
+          router.replace("/user/restaurants");
+        } else {
+          setAuthChecked(true);
+        }
+      });
+    } else {
+      setAuthChecked(true);
+    }
   }, []);
 
   return { authChecked };

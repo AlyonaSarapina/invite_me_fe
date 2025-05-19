@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import styles from "@/styles/Navbar.module.css";
-import { Dispatch, SetStateAction, useEffect, useRef } from "react";
+import { Dispatch, SetStateAction, useEffect, useMemo, useRef } from "react";
 import { useStore } from "@/stores/context";
 import { useRouter } from "next/navigation";
 import { observer } from "mobx-react";
@@ -40,13 +40,14 @@ const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   useEffect(() => {
-    if (
-      userStore.user?.role === "client" &&
-      bookingStore.bookings.length === 0
-    ) {
+    if (userStore.user && bookingStore.bookings.length === 0) {
       bookingStore.fetchBookings();
     }
   }, [userStore.user]);
+
+  const confirmedBookings = useMemo(() => {
+    return bookingStore.bookings.filter((b) => b.status === "confirmed").length;
+  }, [bookingStore.bookings.length]);
 
   const handleLogoClick = async () => {
     await userStore.checkAuth();
@@ -112,7 +113,7 @@ const Navbar: React.FC<NavbarProps> = ({
                 className="nav-link"
               >
                 Bookings
-                {bookingStore.bookings.length > 0 && (
+                {confirmedBookings && (
                   <span
                     className="position-absolute top-0 end-0 badge rounded-pill bg-primary"
                     style={{
@@ -120,11 +121,7 @@ const Navbar: React.FC<NavbarProps> = ({
                       transform: "translateX(10px)",
                     }}
                   >
-                    {
-                      bookingStore.bookings.filter(
-                        (b) => b.status === "confirmed"
-                      ).length
-                    }
+                    {confirmedBookings}
                   </span>
                 )}
               </Link>

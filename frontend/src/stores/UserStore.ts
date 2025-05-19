@@ -7,6 +7,7 @@ export const UserStore = types
     user: types.maybeNull(UserModel),
     loading: types.optional(types.boolean, false),
     error: types.maybe(types.string),
+    authInitialized: types.optional(types.boolean, false),
   })
   .views((self) => ({
     get isOwner() {
@@ -17,24 +18,26 @@ export const UserStore = types
     },
   }))
   .actions((self) => {
-    const checkAuth = flow(function* () {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        removeUser();
-        return;
-      }
+    const checkAuth = flow(function* (force = false) {
+      if (self.authInitialized && !force) return;
 
       self.loading = true;
       try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          self.user = null;
+          return;
+        }
+
         const { data: user } = yield api.get("/users/me");
         self.user = user;
       } catch (err) {
         console.error("Session restore failed", err);
         localStorage.removeItem("token");
-        removeUser();
+        self.user = null;
       } finally {
         self.loading = false;
+        self.authInitialized = true;
       }
     });
 
@@ -77,6 +80,7 @@ export const UserStore = types
 
     const removeUser = () => {
       self.user = null;
+      localStorage.removeItem("token");
     };
 
     return { checkAuth, updateUser, uploadProfilePic, removeUser };

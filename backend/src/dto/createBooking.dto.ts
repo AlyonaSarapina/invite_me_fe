@@ -1,4 +1,4 @@
-import { IsDateString, IsInt, IsOptional, IsPhoneNumber, Max, Min } from 'class-validator';
+import { IsDateString, IsInt, IsOptional, IsPhoneNumber, IsString, Max, Min } from 'class-validator';
 
 export class CreateBookingDto {
   @IsInt()
@@ -10,6 +10,6 @@ export class CreateBookingDto {
   start_time: string;
 
   @IsOptional()
-  @IsPhoneNumber(undefined, { message: 'Invalid phone number format' })
+  @IsString()
   clientPhoneNumber: string;
 }

@@ -6,6 +6,7 @@ export function useBookingForm(initialPeople = 2) {
   const [numPeople, setNumPeople] = useState(initialPeople);
   const [selectedStartTime, setSelectedStartTime] = useState("");
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
+  const [clientPhoneNumber, setClientPhoneNumber] = useState("");
   const [errors, setErrors] = useState({ date: "", time: "", people: "" });
 
   const validateForm = () => {
@@ -37,6 +38,8 @@ export function useBookingForm(initialPeople = 2) {
     setNumPeople,
     setSelectedStartTime,
     setSelectedTimeSlot,
+    clientPhoneNumber,
+    setClientPhoneNumber,
     errors,
     validateForm,
     resetForm,

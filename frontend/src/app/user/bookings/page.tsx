@@ -24,10 +24,6 @@ const BookingsPage = () => {
   );
   const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => {
-    if (userStore.user) fetchBookings();
-  }, [userStore.user]);
-
   const filtered = bookings.filter(
     (b) =>
       (statusFilter === "all" || b.status === statusFilter) &&
@@ -94,6 +90,7 @@ const BookingsPage = () => {
           {paginatedBookings.map((booking) => (
             <BookingItem
               key={booking.id}
+              userRole={userStore.user?.role}
               booking={booking}
               onCancel={setSelectedBookingId}
             />

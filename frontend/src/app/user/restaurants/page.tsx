@@ -1,16 +1,20 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useStore } from "@/stores/context";
 import RestaurantCard from "@/components/RestaurantCard";
 import { useSearchParams } from "next/navigation";
 import Filters from "@/components/Filters";
 import PaginationControls from "@/components/Pagination";
+import CreateRestaurantCard from "@/components/CreateRestaurantCard";
+import RestaurantCreateModal from "@/components/RestaurantCreateModal";
+import { Instance } from "mobx-state-tree";
+import RestaurantModel from "@/stores/models/RestaurantModel";
 
 const RESTAURANTS_PER_PAGE = 10;
 
-function RestaurantsList() {
+const RestaurantsList = () => {
   const { restaurantStore, userStore } = useStore();
   const {
     filters,
@@ -24,6 +28,10 @@ function RestaurantsList() {
     setCuisinesFilter,
   } = restaurantStore;
   const searchParams = useSearchParams();
+  const [restaurantToEdit, setRestaurantToEdit] = useState<
+    Instance<typeof RestaurantModel> | undefined
+  >(undefined);
+  const [showModal, setShowModal] = useState(false);
 
   const syncParamsToStore = () => {
     const page = parseInt(searchParams.get("page") || "1", 10);
@@ -77,22 +85,39 @@ function RestaurantsList() {
         </div>
         <div className="col-12">
           <div className="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+            {userStore.isOwner && (
+              <div className="col">
+                <CreateRestaurantCard onClick={() => setShowModal(true)} />
+              </div>
+            )}
             {paginatedRestaurants.map((restaurant) => (
               <div className="col" key={restaurant.id}>
-                <RestaurantCard restaurant={restaurant} />
+                <RestaurantCard
+                  setRestaurantToEdit={setRestaurantToEdit}
+                  setShowModal={setShowModal}
+                  restaurant={restaurant}
+                />
               </div>
             ))}
-            <PaginationControls
-              totalItems={restaurants.length}
-              itemsPerPage={RESTAURANTS_PER_PAGE}
-              currentPage={currentPage}
-              onPageChange={setCurrentPage}
-            />
           </div>
+          <RestaurantCreateModal
+            show={showModal}
+            onClose={() => {
+              setShowModal(false);
+              setRestaurantToEdit(undefined);
+            }}
+            restaurantToEdit={restaurantToEdit}
+          />
         </div>
       </div>
+      <PaginationControls
+        totalItems={restaurants.length}
+        itemsPerPage={RESTAURANTS_PER_PAGE}
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
-}
+};
 
 export default observer(RestaurantsList);

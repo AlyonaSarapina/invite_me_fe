@@ -64,7 +64,7 @@ export class BookingsService {
         table: In(tableIds),
         deleted_at: IsNull(),
       },
-      relations: ['table', 'client'],
+      relations: ['table', 'table.restaurant', 'client'],
     });
 
     return await this.updateExpiredBookings(bookings);

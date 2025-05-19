@@ -1,5 +1,4 @@
 import { Instance, types } from "mobx-state-tree";
-import { UserRole } from "@/types/enums";
 
 export const UserModel = types.model("UserModel", {
   id: types.identifierNumber,

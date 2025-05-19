@@ -11,7 +11,18 @@ export const registerSchema = z.object({
     .regex(/[0-9]/, "Must include a number")
     .regex(/[^A-Za-z0-9]/, "Must include a special character"),
   phone: z.string().min(5, "Phone number is required"),
-  date_of_birth: z.string().optional(),
+  date_of_birth: z
+    .string()
+    .refine(
+      (date) => {
+        if (!date) return true;
+        return new Date(date) <= new Date();
+      },
+      {
+        message: "Date of birth cannot be in the future",
+      }
+    )
+    .optional(),
   role: z.enum(["client", "owner"], {
     errorMap: () => ({ message: "Role is required" }),
   }),

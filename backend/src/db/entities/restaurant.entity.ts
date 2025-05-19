@@ -57,7 +57,7 @@ export class Restaurant {
   @Column({ type: 'decimal', precision: 3, scale: 2 })
   rating: number;
 
-  @Column()
+  @Column({ type: 'boolean', default: false })
   is_pet_friendly: boolean;
 
   @CreateDateColumn()

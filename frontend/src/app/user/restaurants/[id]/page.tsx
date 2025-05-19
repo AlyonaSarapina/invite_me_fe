@@ -3,32 +3,54 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { observer } from "mobx-react-lite";
-import { RestaurantDetails } from "@/types/RestaurantDetails";
 import { useStore } from "@/stores/context";
 import BookingModal from "@/components/BookingModal";
+import { toast } from "react-toastify";
+import { Instance } from "mobx-state-tree";
+import RestaurantModel from "@/stores/models/RestaurantModel";
 
 const RestaurantDetailsPage = () => {
   const { id } = useParams();
   const router = useRouter();
-  const { restaurantStore } = useStore();
-  const [restaurant, setRestaurant] = useState<RestaurantDetails | null>(null);
+  const { restaurantStore, userStore } = useStore();
+  const [restaurant, setRestaurant] = useState<
+    Instance<typeof RestaurantModel> | undefined
+  >(undefined);
   const [showModal, setShowModal] = useState<boolean>(false);
 
   const handleBack = () => {
     router.back();
   };
 
-  const load = async () => {
-    const data = await restaurantStore.fetchRestaurantById(String(id));
-    setRestaurant(data);
+  const load = async (isOwner = false) => {
+    try {
+      const data = await restaurantStore.fetchRestaurantById(
+        String(id),
+        isOwner
+      );
+      setRestaurant(data);
+    } catch (err) {
+      toast.error("Something went wrong");
+    }
   };
 
   useEffect(() => {
-    load();
+    if (userStore.user?.role === "client") load();
+    else if (userStore.user?.role === "owner") load(true);
   }, [id]);
 
-  if (restaurantStore.loading) return <p>Loading...</p>;
-  if (!restaurant) return <p>Restaurant not found.</p>;
+  if (restaurantStore.loading)
+    return (
+      <div className="container py-5">
+        <p className="text-center fs-3">Loading...</p>
+      </div>
+    );
+  if (!restaurant || restaurantStore.error)
+    return (
+      <div className="container py-5">
+        <p className="text-center fs-1">Restaurant not found</p>
+      </div>
+    );
 
   return (
     <div className="container d-flex flex-column py-5">
@@ -45,17 +67,15 @@ const RestaurantDetailsPage = () => {
         }}
       >
         <div className="d-flex flex-md-row gap-2 gap-md-4">
-          {restaurant.logo_url && (
-            <img
-              src={restaurant.logo_url}
-              alt={restaurant.name}
-              className="img-fluid rounded-3 shadow"
-              style={{
-                maxWidth: "200px",
-                objectFit: "contain",
-              }}
-            />
-          )}
+          <img
+            src={restaurant.logo_url || "/default-restaurant.png"}
+            alt={restaurant.name}
+            className="img-fluid rounded-3 shadow"
+            style={{
+              maxWidth: "200px",
+              objectFit: "contain",
+            }}
+          />
           <div className="d-flex flex-column gap-2 justify-content-between">
             <h1 className="fw-bold m-0">{restaurant.name}</h1>
             <p className="lead text-muted m-0">{restaurant.cuisine} cuisine</p>
@@ -120,7 +140,9 @@ const RestaurantDetailsPage = () => {
                     <strong className="text-center text-capitalize">
                       {day.slice(0, 3)}
                     </strong>
-                    <small className="text-center">{hours.split("-")}</small>
+                    <small className="text-center">
+                      {String(hours).split("-")}
+                    </small>
                   </li>
                 )
               )}

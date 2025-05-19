@@ -12,25 +12,28 @@ import { LoginFormValues } from "@/types/auth";
 import styles from "@/styles/Form.module.css";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const initialValues: LoginFormValues = {
   email: "",
   password: "",
 };
 
-function LoginPage() {
-  const { userStore, loginStore } = useStore();
-  const { checkAuth } = userStore;
+const LoginPage = () => {
+  const { loginStore, userStore } = useStore();
   const { login, error } = loginStore;
   const { authChecked } = useAuthRedirect();
   const router = useRouter();
 
   const handleSubmit = async (values: LoginFormValues) => {
-    await login(values.email, values.password);
-    await checkAuth();
+    try {
+      await login(values.email, values.password);
 
-    if (userStore.user) {
+      await userStore.checkAuth(true);
+
       router.push("/user/restaurants");
+    } catch {
+      toast.error("Something went wrong!");
     }
   };
 
@@ -40,7 +43,7 @@ function LoginPage() {
 
   return (
     <AuthLayout>
-      <h2 className={`mb-4 ${styles.title}`}>
+      <h2 className={`mb-4 ${styles.title} text-center`}>
         Welcome back to <span className={`${styles.brand}`}>Invite Me</span>
       </h2>
       <Formik
@@ -94,6 +97,6 @@ function LoginPage() {
       </Formik>
     </AuthLayout>
   );
-}
+};
 
 export default observer(LoginPage);

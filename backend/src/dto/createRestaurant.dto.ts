@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString, IsEmail, IsPhoneNumber, IsUrl, IsNumber, IsBoolean, Min, Max } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsNotEmpty, IsString, IsEmail, IsUrl, IsNumber, IsBoolean, Min, Max, IsOptional } from 'class-validator';
 
 export class CreateRestaurantDto {
   @IsNotEmpty()
@@ -21,10 +22,12 @@ export class CreateRestaurantDto {
   operating_hours: object;
 
   @IsNotEmpty()
+  @Type(() => Number)
   @IsNumber()
   booking_duration: number;
 
   @IsNotEmpty()
+  @Type(() => Number)
   @IsNumber()
   tables_capacity: number;
 
@@ -33,7 +36,7 @@ export class CreateRestaurantDto {
   cuisine: string;
 
   @IsNotEmpty()
-  @IsPhoneNumber()
+  @IsString()
   phone: string;
 
   @IsNotEmpty()
@@ -41,12 +44,13 @@ export class CreateRestaurantDto {
   inst_url: string;
 
   @IsNotEmpty()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   @Max(5)
   rating: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsBoolean()
-  is_pet_friedly: boolean;
+  is_pet_friendly: boolean;
 }

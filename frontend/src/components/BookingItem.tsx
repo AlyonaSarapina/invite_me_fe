@@ -4,11 +4,16 @@ import BookingModel from "@/stores/models/BookingModel";
 import { Instance } from "mobx-state-tree";
 
 interface BookingItemProps {
+  userRole?: string;
   booking: Instance<typeof BookingModel>;
   onCancel: Dispatch<SetStateAction<number | null>>;
 }
 
-const BookingItem: React.FC<BookingItemProps> = ({ booking, onCancel }) => {
+const BookingItem: React.FC<BookingItemProps> = ({
+  userRole,
+  booking,
+  onCancel,
+}) => {
   const isCancelled = booking.status === "cancelled";
 
   return (
@@ -32,17 +37,24 @@ const BookingItem: React.FC<BookingItemProps> = ({ booking, onCancel }) => {
             .join(".")}
         </div>
 
+        {userRole === "owner" && (
+          <div className="col-md-2 col-4 d-flex flex-column">
+            <strong>Table №:</strong>
+            {booking.table.table_number}
+          </div>
+        )}
+
+        <div className="col-md-2 col-4 d-flex flex-column">
+          <strong>Guests:</strong>
+          {booking.num_people}
+        </div>
+
         <div className="col-md-2 col-4 d-flex flex-column">
           <strong>Time:</strong>
           {new Date(booking.start_time).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
           })}
-        </div>
-
-        <div className="col-md-2 col-4 d-flex flex-column">
-          <strong>Guests:</strong>
-          {booking.num_people}
         </div>
 
         <div className="col-md-2 col-4 d-flex flex-column">
@@ -55,19 +67,36 @@ const BookingItem: React.FC<BookingItemProps> = ({ booking, onCancel }) => {
                 ? "border border-success text-success"
                 : booking.status === "completed"
                 ? "border border-primary text-primary"
-                : "bg-dander"
+                : "bg-danger"
             }`}
           >
             {booking.status}
           </span>
         </div>
 
-        <div className="col-md-2 col-4 d-flex flex-column">
+        {userRole === "owner" && (
+          <>
+            <div className="col-md-2 col-4 d-flex flex-column">
+              <strong>Client:</strong>
+              {booking.client.name}
+            </div>
+            <div className="col-md-2 col-4 d-flex flex-column">
+              <strong>Client Phone:</strong>
+              <a
+                href={`tel:${booking.client.phone}`}
+                className="text-decoration-none"
+              >
+                +{booking.client.phone}
+              </a>
+            </div>
+          </>
+        )}
+        <div className="col-md-2 col-4 d-flex flex-column ms-auto">
           {isCancelled ? (
             <div style={{ width: "80px" }} />
           ) : (
             <button
-              className="btn btn-sm btn-outline-danger align-self-md-end align-self-start"
+              className="btn btn-sm btn-outline-danger align-self-start"
               onClick={() => onCancel(booking.id)}
             >
               Cancel
