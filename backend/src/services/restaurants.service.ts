@@ -95,11 +95,15 @@ export class RestaurantsService {
     const result = await this.cloudinaryService.uploadFile(file, `${type}s`);
 
     if (type === 'logo') {
-      await this.cloudinaryService.deleteFile(restaurant.logo_url);
+      if (restaurant.logo_url !== null) {
+        await this.cloudinaryService.deleteFile(restaurant.logo_url);
+      }
       restaurant.logo_url = result.secure_url;
     } else if (type === 'menu') {
+      if (restaurant.menu_url !== null) {
+        await this.cloudinaryService.deleteFile(restaurant.menu_url);
+      }
       restaurant.menu_url = result.secure_url;
-      await this.cloudinaryService.deleteFile(restaurant.menu_url);
     } else {
       throwBadRequest('Invalid file type');
     }

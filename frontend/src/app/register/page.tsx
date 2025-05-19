@@ -13,8 +13,8 @@ import AuthLayout from "@/components/AuthLayout";
 import FormInput from "@/components/FormInput";
 import { RegisterFormValues } from "@/types/auth";
 import styles from "@/styles/Form.module.css";
-import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { toast } from "react-toastify";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 const initialValues: RegisterFormValues = {
   name: "",
@@ -27,7 +27,7 @@ const initialValues: RegisterFormValues = {
 
 const RegisterPage = () => {
   const router = useRouter();
-  const { authChecked } = useAuthRedirect();
+  const { authReady } = useRequireAuth();
   const { registerStore } = useStore();
   const { register, error } = registerStore;
 
@@ -47,7 +47,7 @@ const RegisterPage = () => {
     }
   };
 
-  if (!authChecked) {
+  if (!authReady) {
     return <div className="text-center py-5">Loading...</div>;
   }
 

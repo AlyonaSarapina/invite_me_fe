@@ -48,7 +48,7 @@ function ClientLayout({ children }: { children: ReactNode }) {
           {authReady && userStore.user ? (
             <main>{children}</main>
           ) : (
-            <div className="text-center py-5">Loading... </div>
+            <div>Loading...</div>
           )}
         </div>
       </div>

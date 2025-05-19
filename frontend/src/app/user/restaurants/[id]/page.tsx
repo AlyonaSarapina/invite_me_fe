@@ -8,6 +8,7 @@ import BookingModal from "@/components/BookingModal";
 import { toast } from "react-toastify";
 import { Instance } from "mobx-state-tree";
 import RestaurantModel from "@/stores/models/RestaurantModel";
+import ImageUploader from "@/components/ImageUploader";
 
 const RestaurantDetailsPage = () => {
   const { id } = useParams();
@@ -17,6 +18,8 @@ const RestaurantDetailsPage = () => {
     Instance<typeof RestaurantModel> | undefined
   >(undefined);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [progress, setProgress] = useState(0);
+  const [uploading, setUploading] = useState(false);
 
   const handleBack = () => {
     router.back();
@@ -45,12 +48,38 @@ const RestaurantDetailsPage = () => {
         <p className="text-center fs-3">Loading...</p>
       </div>
     );
+
   if (!restaurant || restaurantStore.error)
     return (
       <div className="container py-5">
         <p className="text-center fs-1">Restaurant not found</p>
       </div>
     );
+
+  const handleMenuUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const data = await restaurantStore.uploadFile(
+        file,
+        setProgress,
+        restaurant.id
+      );
+      toast.success("Upload successful");
+      setRestaurant({
+        ...restaurant,
+        menu_url: data.menu_url,
+      });
+      console.log(data.menu_url);
+    } catch {
+      toast.error("Upload failed");
+    } finally {
+      setUploading(false);
+      setProgress(0);
+    }
+  };
 
   return (
     <div className="container d-flex flex-column py-5">
@@ -67,15 +96,26 @@ const RestaurantDetailsPage = () => {
         }}
       >
         <div className="d-flex flex-md-row gap-2 gap-md-4">
-          <img
-            src={restaurant.logo_url || "/default-restaurant.png"}
-            alt={restaurant.name}
-            className="img-fluid rounded-3 shadow"
-            style={{
-              maxWidth: "200px",
-              objectFit: "contain",
-            }}
-          />
+          {userStore.isOwner ? (
+            <ImageUploader
+              size={200}
+              id={restaurant.id}
+              onUpload={restaurantStore.uploadFile}
+              iconClassName="fa-image"
+              imageUrl={restaurant?.logo_url as string}
+            ></ImageUploader>
+          ) : (
+            <img
+              src={restaurant.logo_url || "/default-restaurant.png"}
+              alt={restaurant.name}
+              className="img-fluid rounded-3 shadow"
+              style={{
+                maxWidth: "200px",
+                objectFit: "contain",
+              }}
+            />
+          )}
+
           <div className="d-flex flex-column gap-2 justify-content-between">
             <h1 className="fw-bold m-0">{restaurant.name}</h1>
             <p className="lead text-muted m-0">{restaurant.cuisine} cuisine</p>
@@ -86,7 +126,7 @@ const RestaurantDetailsPage = () => {
               </p>
             )}
             <p className="text-secondary m-0">📍 {restaurant.address}</p>
-            <p className="m-0">
+            <div className="m-0 d-flex gap-4">
               <a
                 href={`tel:${restaurant.phone}`}
                 className="text-secondary text-decoration-none"
@@ -95,15 +135,26 @@ const RestaurantDetailsPage = () => {
               </a>
               <a
                 href={restaurant.inst_url}
-                className="text-secondary text-decoration-none ms-3 instagram-link"
+                className="text-secondary text-decoration-none instagram-link d-flex align-items-center"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
               >
-                <i className="fab fa-instagram"></i>
+                <i
+                  className="fab fa-instagram"
+                  style={{
+                    fontSize: "20px",
+                  }}
+                ></i>
               </a>
-            </p>
-            <div className="d-flex gap-3">
+            </div>
+            <div className="d-flex gap-2 gap-md-3">
+              <button
+                className="btn btn-sm btn-outline-primary fw-bold p-1"
+                onClick={() => setShowModal(true)}
+              >
+                🍽️ Book Table
+              </button>
               {restaurant.menu_url && (
                 <a
                   href={restaurant.menu_url}
@@ -114,12 +165,28 @@ const RestaurantDetailsPage = () => {
                   📋 Menu
                 </a>
               )}
-              <button
-                className="btn btn-sm btn-outline-primary fw-bold p-1"
-                onClick={() => setShowModal(true)}
-              >
-                🍽️ Book Table
-              </button>
+              {userStore.isOwner && (
+                <>
+                  <input
+                    id="menu-upload"
+                    type="file"
+                    accept="application/pdf"
+                    onChange={handleMenuUpload}
+                    style={{ display: "none" }}
+                  />
+                  <label
+                    htmlFor="menu-upload"
+                    title="Edit menu"
+                    style={{ cursor: "pointer" }}
+                    className="align-self-center border border-dark px-1 btn btn-sm btn-light"
+                  >
+                    <i
+                      className="far fa-clipboard text-secondary"
+                      style={{ fontSize: "16px" }}
+                    ></i>
+                  </label>
+                </>
+              )}
             </div>
           </div>
         </div>

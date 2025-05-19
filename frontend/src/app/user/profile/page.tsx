@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { profileSchema, ProfileFormValues } from "@/validation/profileSchema";
 import { useStore } from "@/stores/context";
 import { toast } from "react-toastify";
-import ProfilePicUploader from "@/components/ProfilePicUploader";
 import PhoneInput from "react-phone-input-2";
 import { observer } from "mobx-react";
+import ImageUploader from "@/components/ImageUploader";
 
 const UserProfile = () => {
   const { userStore } = useStore();
@@ -20,6 +20,10 @@ const UserProfile = () => {
     email: user?.email || "",
     phone: user?.phone || "",
   };
+
+  useEffect(() => {
+    userStore.checkAuth();
+  }, [userStore.user]);
 
   const handleSubmit = async (values: ProfileFormValues) => {
     try {
@@ -46,7 +50,22 @@ const UserProfile = () => {
       <div className="card rounded-4 shadow px-3">
         <div className="card-body row g-4">
           <div className="col-lg-4 text-center align-content-center">
-            <ProfilePicUploader />
+            <ImageUploader
+              size={200}
+              onUpload={userStore.uploadProfilePic}
+              iconClassName="fa-circle-user"
+              imageUrl={userStore.user?.profile_pic_url as string}
+            />
+            {user?.role && (
+              <span
+                className={`badge fw-semibold mt-2 ${
+                  user.role === "owner" ? "bg-success" : "bg-primary"
+                }`}
+                style={{ fontSize: "0.9rem", textTransform: "capitalize" }}
+              >
+                {user.role}
+              </span>
+            )}
           </div>
 
           <div className="col-lg-8 position-relative">

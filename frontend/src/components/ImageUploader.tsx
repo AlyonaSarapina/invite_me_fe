@@ -1,10 +1,25 @@
-import { useStore } from "@/stores/context";
-import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-const ProfilePicUploader = () => {
-  const { userStore } = useStore();
+type Props = {
+  id?: number | null;
+  imageUrl: string | null;
+  onUpload: (
+    file: File,
+    setProgress: (p: number) => void,
+    id?: number | undefined
+  ) => Promise<void>;
+  iconClassName?: string;
+  size?: number;
+};
+
+const ImageUploader = ({
+  id,
+  imageUrl,
+  onUpload,
+  iconClassName = "fa-circle-user",
+  size = 200,
+}: Props) => {
   const [progress, setProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
 
@@ -14,8 +29,12 @@ const ProfilePicUploader = () => {
 
     setUploading(true);
     try {
-      await userStore.uploadProfilePic(file, setProgress);
-      toast.success("Profile picture updated successfully");
+      if (id) {
+        await onUpload(file, setProgress, id);
+      } else {
+        await onUpload(file, setProgress);
+      }
+      toast.success("Upload successful");
     } catch {
       toast.error("Upload failed");
     } finally {
@@ -28,18 +47,18 @@ const ProfilePicUploader = () => {
     <div>
       <div className="position-relative d-inline-block mb-2">
         <img
-          src={
-            userStore.user?.profile_pic_url
-              ? userStore.user.profile_pic_url
-              : "/user.png"
-          }
-          alt="Profile"
+          src={imageUrl || "/user.png"}
+          alt="Uploaded"
           className="img-fluid rounded-circle"
-          style={{ width: "200px", height: "200px", objectFit: "cover" }}
+          style={{
+            width: `${size}px`,
+            height: `${size}px`,
+            objectFit: "contain",
+          }}
         />
 
         <input
-          id="profile-pic"
+          id="image-upload"
           type="file"
           accept="image/*"
           onChange={handleUpload}
@@ -48,16 +67,14 @@ const ProfilePicUploader = () => {
         />
 
         <label
-          htmlFor="profile-pic"
+          htmlFor="image-upload"
           className="position-absolute bottom-0 end-0 text-primary p-1"
           title="Change photo"
           style={{ cursor: "pointer" }}
         >
           <i
-            className="fa-solid fa-circle-user"
-            style={{
-              fontSize: "36px",
-            }}
+            className={`fa-solid ${iconClassName}`}
+            style={{ fontSize: "36px" }}
           ></i>
         </label>
       </div>
@@ -80,4 +97,4 @@ const ProfilePicUploader = () => {
   );
 };
 
-export default observer(ProfilePicUploader);
+export default ImageUploader;

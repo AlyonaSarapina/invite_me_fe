@@ -10,9 +10,9 @@ import { toFormikValidationSchema } from "zod-formik-adapter";
 import FormInput from "@/components/FormInput";
 import { LoginFormValues } from "@/types/auth";
 import styles from "@/styles/Form.module.css";
-import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 const initialValues: LoginFormValues = {
   email: "",
@@ -22,7 +22,7 @@ const initialValues: LoginFormValues = {
 const LoginPage = () => {
   const { loginStore, userStore } = useStore();
   const { login, error } = loginStore;
-  const { authChecked } = useAuthRedirect();
+  const { authReady } = useRequireAuth();
   const router = useRouter();
 
   const handleSubmit = async (values: LoginFormValues) => {
@@ -37,7 +37,7 @@ const LoginPage = () => {
     }
   };
 
-  if (!authChecked) {
+  if (!authReady) {
     return <div className="text-center py-5">Loading...</div>;
   }
 

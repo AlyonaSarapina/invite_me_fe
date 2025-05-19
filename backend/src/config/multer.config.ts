@@ -5,7 +5,7 @@ import * as multer from 'multer';
 export const multerConfig: MulterOptions = {
   storage: multer.memoryStorage(),
   fileFilter: (req, file, cb) => {
-    const allowedMimes = ['image/jpeg', 'image/png', 'application/pdf'];
+    const allowedMimes = ['image/jpeg', 'image/webp', 'image/png', 'application/pdf'];
 
     if (allowedMimes.includes(file.mimetype)) {
       cb(null, true);

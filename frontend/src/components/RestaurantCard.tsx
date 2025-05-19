@@ -34,8 +34,8 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
           alt={restaurant.name}
           style={{
             height: "180px",
-            objectFit: "cover",
             maxHeight: "180px",
+            objectFit: "contain",
           }}
         />
       </div>

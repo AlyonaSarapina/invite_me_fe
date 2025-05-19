@@ -90,6 +90,49 @@ export const RestaurantStore = types
       }
     });
 
+    const uploadFile = flow(function* (
+      file: File,
+      onProgress?: (progress: number) => void,
+      id?: number
+    ) {
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        console.log(file.type);
+
+        const query = new URLSearchParams();
+
+        if (file.type.split("/")[0] === "image") {
+          query.set("type", "logo");
+        }
+
+        if (file.type === "application/pdf") {
+          query.set("type", "menu");
+        }
+        const res = yield api.patch(
+          `restaurants/${id}/file?${query}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+            onUploadProgress: (progressEvent) => {
+              const percent = Math.round(
+                (progressEvent.loaded * 100) / (progressEvent.total || 1)
+              );
+              onProgress?.(percent);
+            },
+          }
+        );
+
+        return res.data;
+      } catch (err) {
+        console.error("Failed to upload logo picture:", err);
+        throw err;
+      }
+    });
+
     const setCurrentPage = (page: number) => {
       self.currentPage = page;
     };
@@ -121,6 +164,7 @@ export const RestaurantStore = types
       fetchRestaurantById,
       updateRestaurant,
       createRestaurant,
+      uploadFile,
     };
   });
 
