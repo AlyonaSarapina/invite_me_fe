@@ -14,9 +14,9 @@ const RestaurantDetailsPage = () => {
   const { id } = useParams();
   const router = useRouter();
   const { restaurantStore, userStore } = useStore();
-  const [restaurant, setRestaurant] = useState<
-    Instance<typeof RestaurantModel> | undefined
-  >(undefined);
+  const [restaurant, setRestaurant] = useState<Instance<
+    typeof RestaurantModel
+  > | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [progress, setProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
@@ -42,20 +42,6 @@ const RestaurantDetailsPage = () => {
     else if (userStore.user?.role === "owner") load(true);
   }, [id]);
 
-  if (restaurantStore.loading)
-    return (
-      <div className="container py-5">
-        <p className="text-center fs-3">Loading...</p>
-      </div>
-    );
-
-  if (!restaurant || restaurantStore.error)
-    return (
-      <div className="container py-5">
-        <p className="text-center fs-1">Restaurant not found</p>
-      </div>
-    );
-
   const handleMenuUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -65,7 +51,7 @@ const RestaurantDetailsPage = () => {
       const data = await restaurantStore.uploadFile(
         file,
         setProgress,
-        restaurant.id
+        restaurant?.id
       );
       toast.success("Upload successful");
       setRestaurant({
@@ -80,6 +66,20 @@ const RestaurantDetailsPage = () => {
       setProgress(0);
     }
   };
+
+  if (restaurantStore.loading)
+    return (
+      <div className="container py-5">
+        <p className="text-center fs-3">Loading...</p>
+      </div>
+    );
+
+  if (!restaurant || restaurantStore.error)
+    return (
+      <div className="container py-5">
+        <p className="text-center fs-1">Restaurant not found</p>
+      </div>
+    );
 
   return (
     <div className="container d-flex flex-column py-5">
@@ -103,6 +103,9 @@ const RestaurantDetailsPage = () => {
               onUpload={restaurantStore.uploadFile}
               iconClassName="fa-image"
               imageUrl={restaurant?.logo_url as string}
+              onUploadedUrl={(url) =>
+                setRestaurant((prev) => prev && { ...prev, logo_url: url })
+              }
             ></ImageUploader>
           ) : (
             <img

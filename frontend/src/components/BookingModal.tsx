@@ -9,16 +9,17 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { RestaurantDetails } from "@/types/RestaurantToEdit";
 import { observer } from "mobx-react-lite";
 import { toast } from "react-toastify";
 import { useBookingForm } from "@/hooks/useBookingForm";
 import { generateTimeSlots } from "@/utils/timeSlots";
 import { AvailableSlots } from "./AvailableSlots";
 import { Modal, Button, Form, Spinner, Alert } from "react-bootstrap";
+import { Instance } from "mobx-state-tree";
+import RestaurantModel from "@/stores/models/RestaurantModel";
 
 interface BookingModalProps {
-  restaurant: RestaurantDetails;
+  restaurant: Instance<typeof RestaurantModel>;
   setShowModal: Dispatch<SetStateAction<boolean>>;
 }
 
@@ -71,7 +72,7 @@ const BookingModal: React.FC<BookingModalProps> = ({
 
     const [openingTime, closingTime] = todayHours
       .split("-")
-      .map((t) => t.trim());
+      .map((t: string) => t.trim());
     return { openingTime, closingTime };
   };
 

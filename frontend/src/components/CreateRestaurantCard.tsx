@@ -7,8 +7,8 @@ interface Props {
 const CreateRestaurantCard: React.FC<Props> = ({ onClick }) => {
   return (
     <div
-      className="card h-100 border-2 bg-light p-3"
-      style={{ cursor: "pointer", opacity: 0.75 }}
+      className="card h-100 border-2 bg-light p-3 m-auto"
+      style={{ cursor: "pointer", opacity: 0.75, maxWidth: "250px" }}
       onClick={onClick}
     >
       <div className="card border d-flex justify-content-center border flex-grow-1 flex-column">

@@ -11,6 +11,7 @@ import { observer } from "mobx-react";
 import { Instance } from "mobx-state-tree";
 import RestaurantModel from "@/stores/models/RestaurantModel";
 import { getChangedFields } from "@/utils/getChangedFields";
+import { sanitizeFormData } from "@/utils/sanitize";
 
 const cuisineOptions = Object.values(Cuisine);
 
@@ -111,18 +112,7 @@ const RestaurantCreateModal: React.FC<Props> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const formattedHours = Object.fromEntries(
-      Object.entries(form.operating_hours).map(([day, time]) => [
-        day,
-        `${time.open} - ${time.close}`,
-      ])
-    );
-
-    const currentData = {
-      ...form,
-      rating: String(form.rating),
-      operating_hours: formattedHours,
-    };
+    const currentData = sanitizeFormData(form);
 
     try {
       if (restaurantToEdit) {
@@ -132,8 +122,6 @@ const RestaurantCreateModal: React.FC<Props> = ({
           toast.info("No changes detected.");
           return;
         }
-
-        console.log(changedFields);
 
         await restaurantStore.updateRestaurant(
           restaurantToEdit?.id as number,

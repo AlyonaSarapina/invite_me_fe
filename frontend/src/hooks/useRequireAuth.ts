@@ -15,12 +15,14 @@ export function useRequireAuth() {
       await userStore.checkAuth(true);
       setAuthChecked(true);
 
-      if (!userStore.user && pathname !== "/") {
-        router.replace("/");
+      const isGuestRoute = pathname === "/" || pathname === "/register";
+
+      if (userStore.user && isGuestRoute) {
+        router.replace("/user/restaurants");
       }
 
-      if (pathname === "/" && userStore.user) {
-        router.replace("/user/restaurants");
+      if (!userStore.user && pathname !== "/" && pathname !== "/register") {
+        router.replace("/");
       }
     };
 

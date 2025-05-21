@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 type Props = {
   id?: number | null;
   imageUrl: string | null;
+  onUploadedUrl?: (url: string) => void;
   onUpload: (
     file: File,
     setProgress: (p: number) => void,
@@ -15,6 +16,7 @@ type Props = {
 
 const ImageUploader = ({
   id,
+  onUploadedUrl,
   imageUrl,
   onUpload,
   iconClassName = "fa-circle-user",
@@ -29,12 +31,14 @@ const ImageUploader = ({
 
     setUploading(true);
     try {
-      if (id) {
-        await onUpload(file, setProgress, id);
-      } else {
-        await onUpload(file, setProgress);
-      }
+      const result = id
+        ? await onUpload(file, setProgress, id)
+        : await onUpload(file, setProgress);
       toast.success("Upload successful");
+
+      if (result.logo_url && onUploadedUrl) {
+        onUploadedUrl(result.logo_url);
+      }
     } catch {
       toast.error("Upload failed");
     } finally {
@@ -47,7 +51,7 @@ const ImageUploader = ({
     <div>
       <div className="position-relative d-inline-block mb-2">
         <img
-          src={imageUrl || "/user.png"}
+          src={imageUrl || (id ? "./default-restaurant.png" : "./user.png")}
           alt="Uploaded"
           className="img-fluid rounded-circle"
           style={{

@@ -20,7 +20,7 @@ function ClientLayout({ children }: { children: ReactNode }) {
     setMounted(true);
   }, []);
 
-  if (!mounted) {
+  if (!mounted || (!authReady && !userStore.loading)) {
     return <div className="text-center py-5">Loading...</div>;
   }
 
@@ -45,11 +45,7 @@ function ClientLayout({ children }: { children: ReactNode }) {
           style={{ backgroundColor: "rgba(255, 255, 255, 0.3)", zIndex: 1 }}
         />
         <div className="container position-relative" style={{ zIndex: 2 }}>
-          {authReady && userStore.user ? (
-            <main>{children}</main>
-          ) : (
-            <div>Loading...</div>
-          )}
+          {authReady && userStore.user && <main>{children}</main>}
         </div>
       </div>
 

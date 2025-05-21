@@ -53,7 +53,7 @@ const Filters = () => {
         buttonRef.current &&
         !buttonRef.current.contains(event.target as Node)
       ) {
-        setShowFilters(false); // Close the filter
+        setShowFilters(false);
       }
     };
 

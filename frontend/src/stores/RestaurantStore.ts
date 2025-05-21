@@ -80,9 +80,7 @@ export const RestaurantStore = types
     const updateRestaurant = flow(function* (restaurantId: number, data: any) {
       self.loading = true;
       try {
-        console.log(data);
         const res = yield api.patch(`/restaurants/${restaurantId}`, data);
-        console.log(res.data);
       } catch (err) {
         console.error("Failed to create restaurant", err);
       } finally {
@@ -98,8 +96,6 @@ export const RestaurantStore = types
       try {
         const formData = new FormData();
         formData.append("file", file);
-
-        console.log(file.type);
 
         const query = new URLSearchParams();
 
