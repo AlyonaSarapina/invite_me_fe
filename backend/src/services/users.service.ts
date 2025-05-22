@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/db/entities/user.entity';
+import { User } from '../db/entities/user.entity';
 import { IsNull, Repository } from 'typeorm';
 import { CloudinaryService } from './cloudinary.service';
-import { throwBadRequest, throwNotFound } from 'src/utils/exceprions.utils';
-import { UpdateUserDto } from 'src/dto/updateUser.dto';
+import { throwBadRequest, throwNotFound } from '../utils/exceprions.utils';
+import { UpdateUserDto } from '../dto/updateUser.dto';
 
 @Injectable()
 export class UsersService {

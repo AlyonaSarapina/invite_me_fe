@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Restaurant } from 'src/db/entities/restaurant.entity';
+import { Restaurant } from '../db/entities/restaurant.entity';
 import { User } from 'src/db/entities/user.entity';
-import { CreateRestaurantDto } from 'src/dto/createRestaurant.dto';
+import { CreateRestaurantDto } from '../dto/createRestaurant.dto';
 import { FindOptionsWhere, ILike, In, IsNull, MoreThanOrEqual, Repository } from 'typeorm';
 import { CloudinaryService } from './cloudinary.service';
-import { GetRestaurantsQueryDto } from 'src/dto/getRestaurantQuery.dto';
+import { GetRestaurantsQueryDto } from '../dto/getRestaurantQuery.dto';
 import { throwBadRequest, throwNotFound } from 'src/utils/exceprions.utils';
-import { UpdateRestaurantDto } from 'src/dto/updateRestaurant.dto';
+import { UpdateRestaurantDto } from '../dto/updateRestaurant.dto';
 
 @Injectable()
 export class RestaurantsService {

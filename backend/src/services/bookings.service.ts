@@ -1,21 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Booking } from 'src/db/entities/booking.entity';
-import { Restaurant } from 'src/db/entities/restaurant.entity';
-import { Table } from 'src/db/entities/table.entity';
-import { User } from 'src/db/entities/user.entity';
-import { CreateBookingDto } from 'src/dto/createBooking.dto';
+import { Booking } from '../db/entities/booking.entity';
+import { Restaurant } from '../db/entities/restaurant.entity';
+import { Table } from '../db/entities/table.entity';
+import { User } from '../db/entities/user.entity';
+import { CreateBookingDto } from '../dto/createBooking.dto';
 import { In, IsNull, LessThan, MoreThan, Not, Repository } from 'typeorm';
 import { TablesService } from './tables.service';
 import { RestaurantsService } from './restaurants.service';
 import { throwConflict, throwForbidden, throwNotFound } from 'src/utils/exceprions.utils';
 import { UsersService } from './users.service';
-import { UserRole } from 'src/enums/userRole.enum';
-import { BookingStatus } from 'src/enums/bookingStatus.enum';
-import { UpdateBookingStatusDto } from 'src/dto/updateBooking.dto';
+import { UserRole } from '../enums/userRole.enum';
+import { BookingStatus } from '../enums/bookingStatus.enum';
+import { UpdateBookingStatusDto } from '../dto/updateBooking.dto';
 import { addMinutes, isBefore, format, subMinutes } from 'date-fns';
-import { DaysMap } from 'src/enums/weekDays.enum';
-import { AvailableSlotsDto } from 'src/dto/availibleStot.dto';
+import { DaysMap } from '../enums/weekDays.enum';
+import { AvailableSlotsDto } from '../dto/availibleStot.dto';
 
 @Injectable()
 export class BookingsService {

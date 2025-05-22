@@ -1,4 +1,3 @@
-// src/seeds/seedDatabase.ts
 import { CUISINES } from '../enums/cuisinesEnum';
 import { Restaurant } from '../db/entities/restaurant.entity';
 import { User } from '../db/entities/user.entity';
@@ -17,15 +16,15 @@ async function seedDatabase() {
 
     const users = await userRepo.save([
       {
-        name: 'Alice Johnson',
-        email: 'alicejohnson@example.com',
+        name: 'Sara Johnson',
+        email: 'sarajohnson@gmail.com',
         password: passwordHash,
         phone: '123456789',
         role: UserRole.OWNER,
       },
       {
-        name: 'Bob Smith',
-        email: 'bob@example.com',
+        name: 'John Smith',
+        email: 'johnsmith@gmail.com',
         password: passwordHash,
         phone: '987654321',
         role: UserRole.CLIENT,

@@ -1,13 +1,11 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/db/entities/user.entity';
-import { RegisterDto } from 'src/dto/register.dto';
-import { IsNull, Not, Repository } from 'typeorm';
+import { User } from '../db/entities/user.entity';
+import { RegisterDto } from '../dto/register.dto';
 import * as bcrypt from 'bcrypt';
-import { LoginDto } from 'src/dto/login.dto';
+import { LoginDto } from '../dto/login.dto';
 import { UsersService } from './users.service';
-import { throwConflict, throwUnauthorized } from 'src/utils/exceprions.utils';
+import { throwConflict, throwUnauthorized } from '../utils/exceprions.utils';
 
 @Injectable()
 export class AuthService {
@@ -17,12 +15,10 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto): Promise<Omit<User, 'password'>> {
-    const { email, password } = registerDto;
-
-    const existingUser = await this.usersService.getUserByEmail(email);
+    const existingUser = await this.usersService.getUserByEmail(registerDto.email);
     if (existingUser) throwConflict('Email is already registered');
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
     const newUser = await this.usersService.createUser({
       ...registerDto,
       password: hashedPassword,

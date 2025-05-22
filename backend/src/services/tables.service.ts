@@ -1,13 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-
-import { Table } from 'src/db/entities/table.entity';
-import { User } from 'src/db/entities/user.entity';
-import { CreateTableDto } from 'src/dto/createTable.dto';
+import { Table } from '../db/entities/table.entity';
+import { User } from '../db/entities/user.entity';
+import { CreateTableDto } from '../dto/createTable.dto';
 import { IsNull, Repository } from 'typeorm';
 import { RestaurantsService } from './restaurants.service';
-import { throwBadRequest, throwForbidden, throwNotFound } from 'src/utils/exceprions.utils';
-import { UpdateTableDto } from 'src/dto/updateTable.dto';
+import { throwBadRequest, throwForbidden, throwNotFound } from '../utils/exceprions.utils';
+import { UpdateTableDto } from '../dto/updateTable.dto';
 
 @Injectable()
 export class TablesService {
