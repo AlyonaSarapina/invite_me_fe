@@ -7,7 +7,6 @@ import { toast } from "react-toastify";
 import BookingFilters from "@/components/BookingFilters";
 import BookingItem from "@/components/BookingItem";
 import CancelModal from "@/components/CancelModal";
-import { Pagination } from "react-bootstrap";
 import PaginationControls from "@/components/Pagination";
 
 const BOOKINGS_PER_PAGE = 5;

@@ -44,7 +44,7 @@ interface Props {
   restaurantToEdit?: Instance<typeof RestaurantModel>;
 }
 
-const RestaurantCreateModal: React.FC<Props> = ({
+const RestaurantModal: React.FC<Props> = ({
   show,
   onClose,
   restaurantToEdit,
@@ -348,4 +348,4 @@ const RestaurantCreateModal: React.FC<Props> = ({
   );
 };
 
-export default observer(RestaurantCreateModal);
+export default observer(RestaurantModal);

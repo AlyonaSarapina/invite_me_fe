@@ -9,7 +9,7 @@ import { loginSchema } from "@/validation/loginSchema";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import FormInput from "@/components/FormInput";
 import { LoginFormValues } from "@/types/auth";
-import styles from "@/styles/Form.module.css";
+import styles from "./register/Form.module.css";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { useRequireAuth } from "@/hooks/useRequireAuth";

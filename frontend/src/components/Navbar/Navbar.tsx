@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import styles from "@/styles/Navbar.module.css";
+import styles from "@/Navbar.module.css";
 import { Dispatch, SetStateAction, useEffect, useMemo, useRef } from "react";
 import { useStore } from "@/stores/context";
 import { useRouter } from "next/navigation";

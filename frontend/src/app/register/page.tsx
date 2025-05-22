@@ -9,10 +9,10 @@ import "react-phone-input-2/lib/bootstrap.css";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { registerSchema } from "@/validation/registerSchema";
 import { toFormikValidationSchema } from "zod-formik-adapter";
-import AuthLayout from "@/components/AuthLayout";
-import FormInput from "@/components/FormInput";
+import AuthLayout from "@/components/AuthLayout/AuthLayout";
+import FormInput from "@/components/FormInput/FormInput";
 import { RegisterFormValues } from "@/types/auth";
-import styles from "@/styles/Form.module.css";
+import styles from "./Form.module.css";
 import { toast } from "react-toastify";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 

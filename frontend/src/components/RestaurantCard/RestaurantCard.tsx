@@ -3,7 +3,7 @@
 import Link from "next/link";
 import React, { Dispatch, SetStateAction } from "react";
 
-import { Instance, ModelInstanceTypeProps } from "mobx-state-tree";
+import { Instance } from "mobx-state-tree";
 import RestaurantModel from "@/stores/models/RestaurantModel";
 import { useStore } from "@/stores/context";
 import { observer } from "mobx-react";

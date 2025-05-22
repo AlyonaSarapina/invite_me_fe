@@ -13,10 +13,10 @@ import { observer } from "mobx-react-lite";
 import { toast } from "react-toastify";
 import { useBookingForm } from "@/hooks/useBookingForm";
 import { generateTimeSlots } from "@/utils/timeSlots";
-import { AvailableSlots } from "./AvailableSlots";
 import { Modal, Button, Form, Spinner, Alert } from "react-bootstrap";
 import { Instance } from "mobx-state-tree";
 import RestaurantModel from "@/stores/models/RestaurantModel";
+import AvailableSlots from "@/components/AvailableSlots";
 
 interface BookingModalProps {
   restaurant: Instance<typeof RestaurantModel>;

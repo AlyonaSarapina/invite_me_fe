@@ -8,7 +8,7 @@ import { useSearchParams } from "next/navigation";
 import Filters from "@/components/Filters";
 import PaginationControls from "@/components/Pagination";
 import CreateRestaurantCard from "@/components/CreateRestaurantCard";
-import RestaurantCreateModal from "@/components/RestaurantCreateModal";
+import RestaurantCreateModal from "@/components/RestaurantModal";
 import { Instance } from "mobx-state-tree";
 import RestaurantModel from "@/stores/models/RestaurantModel";
 

@@ -6,7 +6,7 @@ import { useStore } from "@/stores/context";
 import { observer } from "mobx-react";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 
-function ClientLayout({ children }: { children: ReactNode }) {
+function UserLayout({ children }: { children: ReactNode }) {
   const { userStore } = useStore();
   const { authReady } = useRequireAuth();
   const [isNavOpen, setIsNavOpen] = useState(false);
@@ -65,4 +65,4 @@ function ClientLayout({ children }: { children: ReactNode }) {
   );
 }
 
-export default observer(ClientLayout);
+export default observer(UserLayout);

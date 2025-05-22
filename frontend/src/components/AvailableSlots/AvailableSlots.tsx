@@ -9,7 +9,7 @@ interface AvailableSlotsProps {
   setSelectedSlot: Dispatch<SetStateAction<string>>;
 }
 
-export const AvailableSlots: React.FC<AvailableSlotsProps> = ({
+const AvailableSlots: React.FC<AvailableSlotsProps> = ({
   slots,
   selectedSlot,
   setSelectedSlot,
@@ -31,3 +31,5 @@ export const AvailableSlots: React.FC<AvailableSlotsProps> = ({
     </div>
   </>
 );
+
+export default AvailableSlots;

@@ -1,7 +1,7 @@
 "use client";
 
 import { Field, ErrorMessage } from "formik";
-import styles from "@/styles/FormInput.module.css";
+import styles from "@/FormInput.module.css";
 
 interface FormInputProps {
   label: string;
