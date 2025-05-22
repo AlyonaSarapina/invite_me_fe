@@ -3,21 +3,21 @@
 import { Field, ErrorMessage } from "formik";
 import styles from "@/styles/FormInput.module.css";
 
-type FormInputProps = {
+interface FormInputProps {
   label: string;
   name: string;
   type?: string;
   disabled?: boolean;
   placeholder?: string;
-};
+}
 
-export default function FormInput({
+const FormInput: React.FC<FormInputProps> = ({
   label,
   name,
   type = "text",
   disabled = false,
   placeholder = "",
-}: FormInputProps) {
+}) => {
   return (
     <div className="form-group mb-3">
       <label className={`form-label ${styles.label}`}>{label}</label>
@@ -31,4 +31,6 @@ export default function FormInput({
       <ErrorMessage name={name} component="div" className="text-danger small" />
     </div>
   );
-}
+};
+
+export default FormInput;

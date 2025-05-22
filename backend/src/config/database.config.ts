@@ -1,7 +1,7 @@
 import { registerAs } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
-export const typeOrmConfig = registerAs(
+const typeOrmConfig = registerAs(
   'database',
   (): TypeOrmModuleOptions => ({
     type: 'postgres',
@@ -13,3 +13,5 @@ export const typeOrmConfig = registerAs(
     synchronize: true,
   }),
 );
+
+export default typeOrmConfig;

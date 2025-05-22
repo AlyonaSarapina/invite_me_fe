@@ -1,5 +1,4 @@
-import { Optional } from '@nestjs/common';
-import { IsDateString, IsInt, Max, Min } from 'class-validator';
+import { IsDateString, IsInt, IsOptional, IsPhoneNumber, IsString, Max, Min } from 'class-validator';
 
 export class CreateBookingDto {
   @IsInt()
@@ -10,10 +9,7 @@ export class CreateBookingDto {
   @IsDateString()
   start_time: string;
 
-  @IsDateString()
-  end_time: string;
-
-  @Optional()
-  @IsInt()
+  @IsOptional()
+  @IsString()
   clientPhoneNumber: string;
 }

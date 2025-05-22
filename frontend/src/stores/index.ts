@@ -7,4 +7,5 @@ export const store = RootStore.create({
   restaurantStore: {
     restaurants: [],
   },
+  bookingStore: {},
 });

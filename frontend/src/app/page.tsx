@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { observer } from "mobx-react";
 import { useStore } from "@/stores/context";
@@ -12,36 +10,40 @@ import { toFormikValidationSchema } from "zod-formik-adapter";
 import FormInput from "@/components/FormInput";
 import { LoginFormValues } from "@/types/auth";
 import styles from "@/styles/Form.module.css";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 const initialValues: LoginFormValues = {
   email: "",
   password: "",
 };
 
-function LoginPage() {
-  const router = useRouter();
-  const { userStore, loginStore } = useStore();
-  const { user, isClient, isOwner } = userStore;
+const LoginPage = () => {
+  const { loginStore, userStore } = useStore();
   const { login, error } = loginStore;
+  const { authReady } = useRequireAuth();
+  const router = useRouter();
 
   const handleSubmit = async (values: LoginFormValues) => {
-    await login(values.email, values.password);
-    await userStore.checkAuth();
+    try {
+      await login(values.email, values.password);
+
+      await userStore.checkAuth(true);
+
+      router.push("/user/restaurants");
+    } catch {
+      toast.error("Something went wrong!");
+    }
   };
 
-  useEffect(() => {
-    if (!user) return;
-
-    if (isOwner) {
-      router.push("/owner/restaurants");
-    } else if (isClient) {
-      router.push("client/restaurants");
-    }
-  }, [user, isOwner, isClient]);
+  if (!authReady) {
+    return <div className="text-center py-5">Loading...</div>;
+  }
 
   return (
     <AuthLayout>
-      <h2 className={`mb-4 ${styles.title}`}>
+      <h2 className={`mb-4 ${styles.title} text-center`}>
         Welcome back to <span className={`${styles.brand}`}>Invite Me</span>
       </h2>
       <Formik
@@ -95,6 +97,6 @@ function LoginPage() {
       </Formik>
     </AuthLayout>
   );
-}
+};
 
 export default observer(LoginPage);

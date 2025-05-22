@@ -9,7 +9,6 @@ import {
   Post,
   Query,
   UploadedFile,
-  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -29,9 +28,13 @@ import { UpdateRestaurantDto } from 'src/dto/updateRestaurant.dto';
 export class RestaurantsController {
   constructor(private readonly restaurantsService: RestaurantsService) {}
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
-  async getAllRestaurants(@Query() getRestaurantQueryDto: GetRestaurantsQueryDto): Promise<[Restaurant[], number]> {
-    return this.restaurantsService.getAll(getRestaurantQueryDto);
+  async getAllRestaurants(
+    @CurrentUser() user: User,
+    @Query() getRestaurantQueryDto: GetRestaurantsQueryDto,
+  ): Promise<{ data: Restaurant[]; total: number; limit: number; offset: number }> {
+    return this.restaurantsService.getAll(user, getRestaurantQueryDto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

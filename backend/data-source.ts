@@ -5,7 +5,7 @@ import { Restaurant } from './src/db/entities/restaurant.entity';
 import { Table } from './src/db/entities/table.entity';
 import { Booking } from './src/db/entities/booking.entity';
 
-export const AppDataSource = new DataSource({
+const AppDataSource = new DataSource({
   type: 'postgres',
   host: process.env.DB_HOST,
   port: 5432,
@@ -17,3 +17,5 @@ export const AppDataSource = new DataSource({
   entities: [User, Restaurant, Table, Booking],
   migrations: ['src/db/migrations/*.ts'],
 });
+
+export default AppDataSource;

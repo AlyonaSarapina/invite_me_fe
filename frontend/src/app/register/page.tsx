@@ -13,6 +13,8 @@ import AuthLayout from "@/components/AuthLayout";
 import FormInput from "@/components/FormInput";
 import { RegisterFormValues } from "@/types/auth";
 import styles from "@/styles/Form.module.css";
+import { toast } from "react-toastify";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 const initialValues: RegisterFormValues = {
   name: "",
@@ -23,19 +25,31 @@ const initialValues: RegisterFormValues = {
   role: "client",
 };
 
-function RegisterPage() {
+const RegisterPage = () => {
   const router = useRouter();
+  const { authReady } = useRequireAuth();
   const { registerStore } = useStore();
   const { register, error } = registerStore;
 
   const handleSubmit = async (values: RegisterFormValues) => {
-    await register({
-      ...values,
-      date_of_birth: values.date_of_birth ? values.date_of_birth : undefined,
-    });
+    try {
+      await register({
+        ...values,
+        date_of_birth: values.date_of_birth ? values.date_of_birth : undefined,
+      });
 
-    router.push("/");
+      toast.success("Registration completed!🎉");
+
+      router.push("/");
+    } catch (err) {
+      console.log(err);
+      toast.error("Something went wrong");
+    }
   };
+
+  if (!authReady) {
+    return <div className="text-center py-5">Loading...</div>;
+  }
 
   const handlePhoneChange = (
     setFieldValue: (field: string, value: any) => void,
@@ -107,50 +121,59 @@ function RegisterPage() {
               <ErrorMessage
                 name="phone"
                 component="div"
-                className="text-danger small"
+                className="form-error"
               />
             </div>
 
             <FormInput
               name="date_of_birth"
-              label="Date of Birth"
+              label="Date of birth"
               type="date"
               disabled={isSubmitting}
             />
 
-            <div className="mb-4">
-              <label className="form-label">Role</label>
-              <Field
-                as="select"
-                name="role"
-                className="form-control"
-                disabled={isSubmitting}
-              >
-                <option value="client">Client</option>
-                <option value="owner">Owner</option>
-              </Field>
-              <ErrorMessage
-                name="role"
-                component="div"
-                className="text-danger small"
-              />
+            <div className="mb-3">
+              <label className="form-label d-block">Role</label>
+              <div className="form-check form-check-inline">
+                <Field
+                  className="form-check-input"
+                  type="radio"
+                  id="clientRole"
+                  name="role"
+                  value="client"
+                  disabled={isSubmitting}
+                />
+                <label className="form-check-label" htmlFor="clientRole">
+                  Client
+                </label>
+              </div>
+              <div className="form-check form-check-inline">
+                <Field
+                  className="form-check-input"
+                  type="radio"
+                  id="ownerRole"
+                  name="role"
+                  value="owner"
+                  disabled={isSubmitting}
+                />
+                <label className="form-check-label" htmlFor="ownerRole">
+                  Owner
+                </label>
+              </div>
             </div>
 
             <button
               type="submit"
-              className={`btn w-100 mb-3 ${styles.btnPrimaryCustom}`}
+              className={`btn w-100 ${styles.btnPrimaryCustom}`}
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Registering..." : "Register"}
+              {isSubmitting ? "Registering..." : "Create account"}
             </button>
 
-            <p className={`${styles.linkWrapper} text-center`}>
+            <p className="text-center mt-3">
               Already have an account?{" "}
-              <Link
-                href="/"
-                className={`text-decoration-none fw-medium ${styles.brand}`}
-              >
-                Login here
+              <Link href="/" className={styles.brand}>
+                Log in here
               </Link>
             </p>
           </Form>
@@ -158,6 +181,6 @@ function RegisterPage() {
       </Formik>
     </AuthLayout>
   );
-}
+};
 
 export default observer(RegisterPage);

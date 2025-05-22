@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Booking } from 'src/db/entities/booking.entity';
 import { Restaurant } from 'src/db/entities/restaurant.entity';
@@ -13,6 +13,9 @@ import { UsersService } from './users.service';
 import { UserRole } from 'src/enums/userRole.enum';
 import { BookingStatus } from 'src/enums/bookingStatus.enum';
 import { UpdateBookingStatusDto } from 'src/dto/updateBooking.dto';
+import { addMinutes, isBefore, format, subMinutes } from 'date-fns';
+import { DaysMap } from 'src/enums/weekDays.enum';
+import { AvailableSlotsDto } from 'src/dto/availibleStot.dto';
 
 @Injectable()
 export class BookingsService {
@@ -25,11 +28,26 @@ export class BookingsService {
     private readonly tableService: TablesService,
   ) {}
 
+  private async updateExpiredBookings(bookings: Booking[]): Promise<Booking[]> {
+    const now = new Date();
+    const expired = bookings.filter((b) => b.status === BookingStatus.CONFIRMED && b.end_time < now);
+
+    for (const booking of expired) {
+      booking.status = BookingStatus.COMPLETED;
+      await this.bookingRepo.save(booking);
+    }
+
+    return bookings;
+  }
+
   async getClientsBookings(userId: number): Promise<Booking[]> {
-    return this.bookingRepo.find({
-      where: { client: { id: userId }, deleted_at: IsNull() },
-      relations: ['table', 'client'],
+    const bookings = await this.bookingRepo.find({
+      where: { client: { id: userId } },
+      relations: ['table', 'table.restaurant', 'client'],
+      withDeleted: true,
     });
+
+    return await this.updateExpiredBookings(bookings);
   }
 
   async getOwnersBookings(userId: number): Promise<Booking[]> {
@@ -41,29 +59,30 @@ export class BookingsService {
 
     if (!tableIds.length) return [];
 
-    return this.bookingRepo.find({
+    const bookings = await this.bookingRepo.find({
       where: {
         table: In(tableIds),
         deleted_at: IsNull(),
       },
-      relations: ['table', 'client'],
+      relations: ['table', 'table.restaurant', 'client'],
     });
+
+    return await this.updateExpiredBookings(bookings);
   }
 
   async createBooking(restaurantId: number, createBookingDto: CreateBookingDto, user: User): Promise<Booking> {
-    const { num_people, start_time, end_time, clientPhoneNumber } = createBookingDto;
+    const restaurant = await this.restaurantService.getRestaurantById(restaurantId);
+    const { num_people, start_time, clientPhoneNumber } = createBookingDto;
     const start_date = new Date(start_time);
-    const end_date = new Date(end_time);
+    const end_date = addMinutes(start_date, restaurant.booking_duration);
     const isOwner = user.role === UserRole.OWNER;
 
     if (isOwner && !clientPhoneNumber)
       throwConflict('You need to provide the client contact information (phone number) to create the booking');
 
-    const client = isOwner ? await this.userService.getUserByPhone(clientPhoneNumber) : user;
+    const client = isOwner ? await this.userService.getUserByPhone(clientPhoneNumber as string) : user;
 
     if (!client) throwNotFound('Client');
-
-    const restaurant = await this.restaurantService.getRestaurantById(restaurantId);
 
     if (isOwner && restaurant.owner.id !== user.id) throwForbidden('You cannot book for a restaurant you do not own');
 
@@ -73,8 +92,8 @@ export class BookingsService {
 
     const booking = this.bookingRepo.create({
       num_people,
-      start_time,
-      end_time,
+      start_time: start_date,
+      end_time: end_date,
       status: BookingStatus.CONFIRMED,
       client: client,
       table,
@@ -115,6 +134,64 @@ export class BookingsService {
     return availableTable ?? null;
   }
 
+  private isSlotWithinWorkingHoursAndFuture(slotStart: Date, dateStr: string, operatingHours: string): boolean {
+    const now = new Date();
+
+    if (slotStart.getTime() < now.getTime()) {
+      return false;
+    }
+
+    const [openStr, closeStr] = operatingHours.split('-').map((s) => s.trim());
+    const openTime = new Date(`${dateStr}T${openStr}:00`);
+    const closeTime = new Date(`${dateStr}T${closeStr}:00`);
+
+    return slotStart >= openTime && slotStart < closeTime;
+  }
+
+  async getAvailableBookingSlots(restaurantId: number, availableSlotsDto: AvailableSlotsDto): Promise<string[]> {
+    const { date, num_people, start_time } = availableSlotsDto;
+    const restaurant = await this.restaurantService.getRestaurantById(restaurantId);
+
+    const { operating_hours, booking_duration } = restaurant;
+
+    const slotDuration = booking_duration;
+    const interval = 30;
+
+    const weekDay = DaysMap[new Date(date).getDay()];
+
+    if (!operating_hours[weekDay]) {
+      throwNotFound(`Operating hours not defined for day: ${weekDay}`);
+    }
+
+    const workingHoursEndStr = `${date}T${operating_hours[weekDay].split('-').map((s) => s.trim())[1]}:00`;
+
+    const workingHoursEnd = new Date(workingHoursEndStr);
+
+    const allSlots: string[] = [];
+
+    let current = subMinutes(new Date(`${date}T${start_time}:00`), 60);
+
+    while (isBefore(addMinutes(current, slotDuration), workingHoursEnd) && allSlots.length <= 4) {
+      const slotStart = current;
+      const slotEnd = addMinutes(current, slotDuration);
+
+      if (!this.isSlotWithinWorkingHoursAndFuture(slotStart, date, operating_hours[weekDay])) {
+        current = addMinutes(current, interval);
+        continue;
+      }
+
+      const availableTable = await this.findAvailableTable(restaurantId, slotStart, slotEnd, num_people);
+
+      if (availableTable) {
+        allSlots.push(format(slotStart, "yyyy-MM-dd'T'HH:mm:ss"));
+      }
+
+      current = addMinutes(current, interval);
+    }
+
+    return allSlots;
+  }
+
   async updateBooking(id: number, updateBookingStatusDto: UpdateBookingStatusDto, user: User): Promise<Booking> {
     const booking = await this.bookingRepo.findOne({
       where: { id },
@@ -125,19 +202,21 @@ export class BookingsService {
 
     this.ensureBookingAccess(booking, user);
 
-    const { num_people, start_time, end_time, status } = updateBookingStatusDto;
+    const { num_people, start_time, status } = updateBookingStatusDto;
 
     if (status) {
       booking.status = status;
     }
 
-    const isTimeUpdated = start_time && end_time;
+    const isTimeUpdated = !!start_time;
     const isPeopleUpdated = num_people && num_people !== booking.num_people;
 
     if (isTimeUpdated || isPeopleUpdated) {
-      const new_start_time = start_time ? new Date(start_time) : booking.start_time;
-      const new_end_time = end_time ? new Date(end_time) : booking.end_time;
+      const new_start_time = isTimeUpdated ? new Date(start_time) : booking.start_time;
       const new_people = num_people ?? booking.num_people;
+
+      const duration = booking.table.restaurant.booking_duration;
+      const new_end_time = addMinutes(new_start_time, duration);
 
       const availableTable = await this.findAvailableTable(
         booking.table.restaurant.id,

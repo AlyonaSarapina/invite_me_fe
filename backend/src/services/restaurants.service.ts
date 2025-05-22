@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Restaurant } from 'src/db/entities/restaurant.entity';
 import { User } from 'src/db/entities/user.entity';
 import { CreateRestaurantDto } from 'src/dto/createRestaurant.dto';
-import { FindOptionsWhere, ILike, IsNull, MoreThanOrEqual, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, In, IsNull, MoreThanOrEqual, Repository } from 'typeorm';
 import { CloudinaryService } from './cloudinary.service';
 import { GetRestaurantsQueryDto } from 'src/dto/getRestaurantQuery.dto';
 import { throwBadRequest, throwNotFound } from 'src/utils/exceprions.utils';
@@ -17,22 +17,32 @@ export class RestaurantsService {
     private cloudinaryService: CloudinaryService,
   ) {}
 
-  async getAll(getRestaurantQueryDto: GetRestaurantsQueryDto): Promise<[Restaurant[], number]> {
-    const { limit = 10, offset = 0, name, min_rating, cuisine, is_pet_friedly } = getRestaurantQueryDto;
+  async getAll(
+    user: User,
+    query: GetRestaurantsQueryDto,
+  ): Promise<{ data: Restaurant[]; total: number; limit: number; offset: number }> {
+    const { limit = 10, offset = 0, name, min_rating, cuisine, is_pet_friendly } = query;
 
     const where: FindOptionsWhere<Restaurant> = {
       deleted_at: IsNull(),
       ...(min_rating && { rating: MoreThanOrEqual(min_rating) }),
-      ...(cuisine && { cuisine: ILike(cuisine) }),
-      is_pet_friedly,
-      ...(name && { name: ILike(`%${name}%`) }),
+      ...(cuisine && { cuisine: In(cuisine) }),
+      is_pet_friendly,
+      ...(name && { name: ILike(`${name}%`) }),
     };
 
-    return await this.restaurantRepo.findAndCount({
+    if (user.role === 'owner') {
+      where.owner = { id: user.id };
+    }
+
+    const [data, total] = await this.restaurantRepo.findAndCount({
       where,
-      skip: offset,
+      relations: ['owner', 'tables'],
       take: limit,
+      skip: offset,
     });
+
+    return { data, total, limit, offset };
   }
 
   async getOwnedRestaurants(ownerId: number): Promise<Restaurant[]> {
@@ -57,7 +67,7 @@ export class RestaurantsService {
   async getRestaurantById(id: number) {
     return await this.restaurantRepo.findOneOrFail({
       where: { id, deleted_at: IsNull() },
-      relations: ['tables', 'tables.bookings'],
+      relations: ['tables', 'tables.bookings', 'owner'],
     });
   }
 
@@ -66,6 +76,7 @@ export class RestaurantsService {
       ...dto,
       owner,
     });
+
     return await this.restaurantRepo.save(restaurant);
   }
 
@@ -84,11 +95,15 @@ export class RestaurantsService {
     const result = await this.cloudinaryService.uploadFile(file, `${type}s`);
 
     if (type === 'logo') {
-      await this.cloudinaryService.deleteFile(restaurant.logo_url);
+      if (restaurant.logo_url !== null) {
+        await this.cloudinaryService.deleteFile(restaurant.logo_url);
+      }
       restaurant.logo_url = result.secure_url;
     } else if (type === 'menu') {
+      if (restaurant.menu_url !== null) {
+        await this.cloudinaryService.deleteFile(restaurant.menu_url);
+      }
       restaurant.menu_url = result.secure_url;
-      await this.cloudinaryService.deleteFile(restaurant.menu_url);
     } else {
       throwBadRequest('Invalid file type');
     }

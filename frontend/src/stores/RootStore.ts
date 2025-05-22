@@ -3,16 +3,12 @@ import { UserStore } from "./UserStore";
 import { LoginStore } from "./LoginStore";
 import { RestaurantStore } from "./RestaurantStore";
 import { RegisterStore } from "./RegisterStore";
+import { BookingStore } from "./BookingStore";
 
-export const RootStore = types
-  .model("RootStore", {
-    userStore: UserStore,
-    loginStore: LoginStore,
-    registerStore: RegisterStore,
-    restaurantStore: RestaurantStore,
-  })
-  .actions((self) => ({
-    afterCreate() {
-      self.userStore.checkAuth();
-    },
-  }));
+export const RootStore = types.model("RootStore", {
+  userStore: UserStore,
+  loginStore: LoginStore,
+  registerStore: RegisterStore,
+  restaurantStore: RestaurantStore,
+  bookingStore: BookingStore,
+});
