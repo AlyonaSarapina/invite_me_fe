@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Dispatch, SetStateAction } from "react";
 import BookingModel from "@/stores/models/BookingModel";
 import { Instance } from "mobx-state-tree";
+import styles from "./BookingItem.module.css";
 
 interface BookingItemProps {
   userRole?: string;
@@ -93,7 +94,7 @@ const BookingItem: React.FC<BookingItemProps> = ({
         )}
         <div className="col-md-2 col-4 d-flex flex-column ms-auto">
           {isCancelled ? (
-            <div style={{ width: "80px" }} />
+            <div className={styles.button_placeholder} />
           ) : (
             <button
               className="btn btn-sm btn-outline-danger align-self-start"

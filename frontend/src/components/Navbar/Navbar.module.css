@@ -1,3 +1,30 @@
+.logo {
+  cursor: pointer;
+}
+
+.logo img {
+  height: 40px;
+}
+
+.badgePosition {
+  font-size: 0.7rem;
+  transform: translateX(10px);
+}
+
+.profilePic {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+}
+
+.logoutIcon {
+  font-size: 20px;
+}
+
+.navZIndex {
+  z-index: 10;
+}
+
 .customToggler {
   border: none;
   transition: background-color 0.3s ease;
@@ -17,9 +44,7 @@
     display: block;
     max-height: 0;
     opacity: 0;
-    transition:
-      max-height 0.5s ease,
-      opacity 0.3s ease;
+    transition: max-height 0.5s ease, opacity 0.3s ease;
     pointer-events: none;
   }
 

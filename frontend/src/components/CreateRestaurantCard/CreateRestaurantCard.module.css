@@ -1,0 +1,5 @@
+.card_custom {
+  cursor: pointer;
+  opacity: 0.75;
+  max-width: 250px;
+}

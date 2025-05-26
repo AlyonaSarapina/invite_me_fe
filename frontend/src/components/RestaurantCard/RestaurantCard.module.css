@@ -1,0 +1,27 @@
+.cardWrapper {
+  max-width: 250px;
+  margin: 0 auto;
+  opacity: 0.9;
+}
+
+.imageWrapper {
+  position: relative;
+  margin-bottom: 1rem; 
+  border: 1px solid #dee2e6;
+  border-radius: 0.75rem;
+}
+
+.logo {
+  height: 180px;
+  max-height: 180px;
+  object-fit: contain;
+  border-radius: 0.75rem;
+}
+
+.title {
+  font-size: 1rem;
+}
+
+.detailsText {
+  font-size: 0.875rem;
+}

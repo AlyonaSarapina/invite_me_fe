@@ -68,13 +68,10 @@ const Navbar: React.FC<NavbarProps> = ({
         className="bg-light navbar navbar-expand-lg navbar-light bg-light px-3 align-items-center fixed-top border-bottom"
       >
         <div
-          style={{
-            cursor: "pointer",
-          }}
           onClick={handleLogoClick}
-          className="navbar-brand fw-bold fs-4 d-flex align-items-center m-0"
+          className={`navbar-brand fw-bold fs-4 d-flex align-items-center m-0 ${styles.logo}`}
         >
-          <img src="/logo.png" alt="Invite Me" style={{ height: "40px" }} />
+          <img src="/logo.png" alt="Invite Me" className={styles.logoImg} />
         </div>
         <button
           className={`${styles.customToggler} navbar-toggler`}
@@ -94,8 +91,7 @@ const Navbar: React.FC<NavbarProps> = ({
           id="navbarNav"
         >
           <ul
-            className="navbar-nav mb-2 mb-lg-0 d-flex align-items-lg-center align-items-end gap-lg-4 fw-bold z-100"
-            style={{ zIndex: 10 }}
+            className={`navbar-nav mb-2 mb-lg-0 d-flex align-items-lg-center align-items-end gap-lg-4 fw-bold ${styles.navZIndex}`}
           >
             <li className="nav-item">
               <Link
@@ -115,11 +111,7 @@ const Navbar: React.FC<NavbarProps> = ({
                 Bookings
                 {confirmedBookings && (
                   <span
-                    className="position-absolute top-0 end-0 badge rounded-pill bg-primary"
-                    style={{
-                      fontSize: "0.7rem",
-                      transform: "translateX(10px)",
-                    }}
+                    className={`position-absolute top-0 end-0 badge rounded-pill bg-primary ${styles.badgePosition}`}
                   >
                     {confirmedBookings}
                   </span>
@@ -139,12 +131,7 @@ const Navbar: React.FC<NavbarProps> = ({
                       : "/user.png"
                   }
                   alt="Profile"
-                  className="img-fluid rounded-circle"
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    objectFit: "cover",
-                  }}
+                  className={`img-fluid rounded-circle ${styles.profilePic}`}
                 />
               </Link>
             </li>
@@ -158,12 +145,7 @@ const Navbar: React.FC<NavbarProps> = ({
                 }}
                 className="nav-link text-secondary p-lg-0"
               >
-                <i
-                  className="fa fa-sign-out"
-                  style={{
-                    fontSize: "20px",
-                  }}
-                ></i>
+                <i className={`fa fa-sign-out ${styles.logoutIcon}`}></i>
               </button>
             </li>
           </ul>

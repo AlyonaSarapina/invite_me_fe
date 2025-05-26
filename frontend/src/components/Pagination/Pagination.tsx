@@ -1,6 +1,7 @@
 "use client";
 
 import { Pagination } from "react-bootstrap";
+import styles from "./Pagination.module.css";
 
 interface PaginationControlsProps {
   totalItems: number;
@@ -23,7 +24,7 @@ const PaginationControls = ({
     if (totalPages <= 5)
       return Array.from({ length: totalPages }, (_, i) => i + 1);
 
-    const pages = [1];
+    const pages: Array<number | string> = [1];
 
     if (currentPage > 3) pages.push("ellipsis-start");
 
@@ -54,7 +55,7 @@ const PaginationControls = ({
             key={page}
             active={page === currentPage}
             onClick={() => onPageChange(Number(page))}
-            style={{ opacity: page === currentPage ? 1 : 0.7 }}
+            className={page === currentPage ? undefined : styles.itemInactive}
           >
             {page}
           </Pagination.Item>

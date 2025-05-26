@@ -1,4 +1,5 @@
 import React from "react";
+import styles from "./CreateRestaurantCard.module.css";
 
 interface Props {
   onClick: () => void;
@@ -7,8 +8,7 @@ interface Props {
 const CreateRestaurantCard: React.FC<Props> = ({ onClick }) => {
   return (
     <div
-      className="card h-100 border-2 bg-light p-3 m-auto"
-      style={{ cursor: "pointer", opacity: 0.75, maxWidth: "250px" }}
+      className={`card h-100 border-2 bg-light p-3 m-auto ${styles.card_custom}`}
       onClick={onClick}
     >
       <div className="card border d-flex justify-content-center border flex-grow-1 flex-column">

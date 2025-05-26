@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import React, { Dispatch, SetStateAction } from "react";
-
 import { Instance } from "mobx-state-tree";
 import RestaurantModel from "@/stores/models/RestaurantModel";
 import { useStore } from "@/stores/context";
 import { observer } from "mobx-react";
+import styles from "./RestaurantCard.module.css";
 
 interface RestaurantCardProps {
   setShowModal: Dispatch<React.SetStateAction<boolean>>;
@@ -24,28 +24,19 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
   const { userStore } = useStore();
   return (
     <div
-      className="card h-100 shadow-sm border-0 overflow-hidden p-3"
-      style={{ maxWidth: "250px", margin: "0 auto", opacity: 0.9 }}
+      className={`card h-100 shadow-sm border-0 overflow-hidden p-3 ${styles.cardWrapper}`}
     >
-      <div className="position-relative mb-3 border rounded-3">
+      <div className={styles.imageWrapper}>
         <img
           src={restaurant.logo_url || "/default-restaurant.png"}
-          className="card-img-top rounded-3"
+          className={`card-img-top ${styles.logo}`}
           alt={restaurant.name}
-          style={{
-            height: "180px",
-            maxHeight: "180px",
-            objectFit: "contain",
-          }}
         />
       </div>
 
       <div className="d-flex flex-column justify-content-between">
         <div className="d-flex justify-content-between mb-2">
-          <h5
-            className="card-title fw-bold text-dark mb-0"
-            style={{ fontSize: "1rem" }}
-          >
+          <h5 className={`card-title fw-bold text-dark mb-0 ${styles.title}`}>
             {restaurant.name}
           </h5>
           <span className="d-flex align-items-center text-success fw-bold">
@@ -63,12 +54,11 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
               </button>
             </div>
           )}
-          <div className="text-dark small" style={{ fontSize: "0.875rem" }}>
+          <div className={`text-dark small ${styles.detailsText}`}>
             🍽️ {restaurant.cuisine}
           </div>
           <div className="text-dark small">
-            📍
-            {restaurant.address.split(", ").reverse()[0]}
+            📍{restaurant.address.split(", ").reverse()[0]}
           </div>
           <div className={`${userStore.isOwner && "d-flex"} gap-2`}>
             <Link

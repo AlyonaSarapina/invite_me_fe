@@ -1,0 +1,13 @@
+.phoneInput {
+  height: 48px;
+  width: 100%;
+  font-size: 14px;
+}
+
+.phoneInputContainer {
+  width: 100%;
+}
+
+.textarea {
+  resize: none;
+}

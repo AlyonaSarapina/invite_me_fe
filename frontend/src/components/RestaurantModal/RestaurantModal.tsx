@@ -12,6 +12,7 @@ import { Instance } from "mobx-state-tree";
 import RestaurantModel from "@/stores/models/RestaurantModel";
 import { getChangedFields } from "@/utils/getChangedFields";
 import { sanitizeFormData } from "@/utils/sanitize";
+import styles from "./RestaurantModal.module.css";
 
 const cuisineOptions = Object.values(Cuisine);
 
@@ -176,7 +177,7 @@ const RestaurantModal: React.FC<Props> = ({
               name="description"
               value={form.description}
               onChange={handleChange}
-              style={{ resize: "none" }}
+              className={styles.textarea}
               maxLength={300}
               required
             />
@@ -219,12 +220,8 @@ const RestaurantModal: React.FC<Props> = ({
                 name: "phone",
                 required: true,
               }}
-              inputStyle={{
-                height: "48px",
-                width: "100%",
-                fontSize: "14px",
-              }}
-              containerStyle={{ width: "100%" }}
+              inputClass={styles.phoneInput}
+              containerClass={styles.phoneInputContainer}
             />
           </Form.Group>
 

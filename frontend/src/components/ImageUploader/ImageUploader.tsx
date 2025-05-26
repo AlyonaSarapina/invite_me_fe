@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
+import styles from "./ImageUploader.module.css";
 
 type Props = {
   id?: number | null;
@@ -9,7 +10,7 @@ type Props = {
     file: File,
     setProgress: (p: number) => void,
     id?: number | undefined
-  ) => Promise<void>;
+  ) => Promise<any>;
   iconClassName?: string;
   size?: number;
 };
@@ -49,16 +50,14 @@ const ImageUploader = ({
 
   return (
     <div>
-      <div className="position-relative d-inline-block mb-2">
+      <div
+        className={`position-relative d-inline-block mb-2 ${styles.imageWrapper}`}
+      >
         <img
           src={imageUrl || (id ? "./default-restaurant.png" : "./user.png")}
           alt="Uploaded"
-          className="img-fluid rounded-circle"
-          style={{
-            width: `${size}px`,
-            height: `${size}px`,
-            objectFit: "contain",
-          }}
+          className={`img-fluid ${styles.imagePreview}`}
+          style={{ width: `${size}px`, height: `${size}px` }}
         />
 
         <input
@@ -66,20 +65,16 @@ const ImageUploader = ({
           type="file"
           accept="image/*"
           onChange={handleUpload}
-          style={{ display: "none" }}
+          className={styles.fileInput}
           disabled={uploading}
         />
 
         <label
           htmlFor="image-upload"
-          className="position-absolute bottom-0 end-0 text-primary p-1"
+          className={styles.uploadLabel}
           title="Change photo"
-          style={{ cursor: "pointer" }}
         >
-          <i
-            className={`fa-solid ${iconClassName}`}
-            style={{ fontSize: "36px" }}
-          ></i>
+          <i className={`fa-solid ${iconClassName} ${styles.icon}`}></i>
         </label>
       </div>
 
