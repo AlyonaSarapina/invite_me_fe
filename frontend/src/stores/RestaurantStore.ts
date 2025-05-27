@@ -5,19 +5,24 @@ import FiltersModel from "./models/FiltersModel";
 
 export const RestaurantStore = types
   .model("RestaurantStore", {
-    restaurants: types.array(RestaurantModel),
+    restaurants: types.optional(types.array(RestaurantModel), []),
     totalCount: types.optional(types.number, 0),
     currentPage: types.optional(types.number, 1),
     filters: types.optional(FiltersModel, {}),
     loading: types.optional(types.boolean, false),
+    restaurantsPerPage: types.optional(types.number, 4),
     error: types.maybeNull(types.string),
   })
   .actions((self) => {
     const fetchRestaurants = flow(function* (isOwner = false) {
       self.loading = true;
       try {
-        const { currentPage, filters } = self;
-        const limit = 10;
+        const { currentPage, filters, restaurantsPerPage } = self;
+        const limit =
+          isOwner && currentPage === 1
+            ? restaurantsPerPage - 1
+            : restaurantsPerPage;
+
         const offset = (currentPage - 1) * limit;
 
         const query = new URLSearchParams();
@@ -33,8 +38,9 @@ export const RestaurantStore = types
         query.set("offset", offset.toString());
         query.set("limit", limit.toString());
 
-        const endpoint = isOwner ? "/restaurants/my" : "/restaurants";
-        const res = yield api.get(`${endpoint}?${query.toString()}`);
+        const res = yield api.get(`/restaurants?${query.toString()}`);
+
+        console.log(res.data);
 
         self.restaurants = res.data.data;
         self.totalCount = res.data.total;

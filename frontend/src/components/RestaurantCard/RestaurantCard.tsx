@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Instance } from "mobx-state-tree";
 import RestaurantModel from "@/stores/models/RestaurantModel";
 import { useStore } from "@/stores/context";
 import { observer } from "mobx-react";
 import styles from "./RestaurantCard.module.css";
+import TableModal from "../TableModal/TableModal";
 
 interface RestaurantCardProps {
   setShowModal: Dispatch<React.SetStateAction<boolean>>;
@@ -21,7 +22,19 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
   setRestaurantToEdit,
   restaurant,
 }) => {
-  const { userStore } = useStore();
+  const { userStore, tableStore } = useStore();
+  const [tablesLength, setTablesLength] = useState<number | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const getTablesLength = async () => {
+    const tables: [] = await tableStore.getTableByRestaurant(restaurant.id);
+    setTablesLength(tables.length);
+  };
+
+  useEffect(() => {
+    getTablesLength();
+  }, []);
+
   return (
     <div
       className={`card h-100 shadow-sm border-0 overflow-hidden p-3 ${styles.cardWrapper}`}
@@ -47,11 +60,20 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
           {userStore.isOwner && (
             <div className="d-flex justify-content-between text-dark small fw-bold">
               <span className="align-self-center">
-                {restaurant.tables_capacity} tables
+                {tablesLength} {tablesLength === 1 ? "table" : "tables"}
               </span>
-              <button className="btn btn-sm btn-outline-secondary rounded fw-bold">
+              <button
+                onClick={() => setModalOpen(true)}
+                className="btn btn-sm btn-outline-secondary rounded fw-bold"
+              >
                 Add table
               </button>
+              <TableModal
+                show={modalOpen}
+                onHide={() => setModalOpen(false)}
+                restaurantId={restaurant.id}
+                onTableAdded={getTablesLength}
+              />
             </div>
           )}
           <div className={`text-dark small ${styles.detailsText}`}>

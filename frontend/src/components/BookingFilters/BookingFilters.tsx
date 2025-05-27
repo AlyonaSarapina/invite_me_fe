@@ -1,12 +1,12 @@
-import { Dispatch, SetStateAction } from "react";
+import { BookingStatus, SortDate } from "@/types/enums";
 
 interface BookingFiltersProps {
   sortOrder: string;
-  setSortOrder: Dispatch<SetStateAction<string>>;
+  setSortOrder: (order: SortDate) => void;
   statusFilter: string;
-  setStatusFilter: Dispatch<SetStateAction<string>>;
+  setStatusFilter: (status: BookingStatus | "all") => void;
   restaurantFilter: string;
-  setRestaurantFilter: Dispatch<SetStateAction<string>>;
+  setRestaurantFilter: (value: string) => void;
   statuses: Array<string>;
   restaurants: Array<string>;
 }
@@ -27,7 +27,7 @@ const BookingFilters: React.FC<BookingFiltersProps> = ({
       <select
         className="form-select form-select-sm"
         value={sortOrder}
-        onChange={(e) => setSortOrder(e.target.value)}
+        onChange={(e) => setSortOrder(e.target.value as SortDate)}
       >
         <option value="newest">Date ↓</option>
         <option value="oldest">Date ↑</option>
@@ -39,7 +39,9 @@ const BookingFilters: React.FC<BookingFiltersProps> = ({
       <select
         className="form-select form-select-sm"
         value={statusFilter}
-        onChange={(e) => setStatusFilter(e.target.value)}
+        onChange={(e) =>
+          setStatusFilter(e.target.value as BookingStatus | "all")
+        }
       >
         <option value="all">Any</option>
         {statuses.map((status: string) => (

@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import { debounce } from "lodash";
 import { useStore } from "@/stores/context";
 import { Cuisine } from "@/types/enums";
-import styles from "@/Filters.module.css";
+import styles from "./Filters.module.css";
 
 const Filters = () => {
   const { restaurantStore } = useStore();

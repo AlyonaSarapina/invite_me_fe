@@ -18,3 +18,14 @@ export enum Cuisine {
   Indian = "Indian",
   Mediterranean = "Mediterranean",
 }
+
+export enum BookingStatus {
+  CONFIRMED = "confirmed",
+  CANCELED = "cancelled",
+  COMPLETED = "completed",
+}
+
+export enum SortDate {
+  NEWEST = "newest",
+  OLDEST = "oldest",
+}

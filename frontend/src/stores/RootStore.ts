@@ -4,6 +4,7 @@ import { LoginStore } from "./LoginStore";
 import { RestaurantStore } from "./RestaurantStore";
 import { RegisterStore } from "./RegisterStore";
 import { BookingStore } from "./BookingStore";
+import { TableStore } from "./TableStore";
 
 export const RootStore = types.model("RootStore", {
   userStore: UserStore,
@@ -11,4 +12,5 @@ export const RootStore = types.model("RootStore", {
   registerStore: RegisterStore,
   restaurantStore: RestaurantStore,
   bookingStore: BookingStore,
+  tableStore: TableStore,
 });

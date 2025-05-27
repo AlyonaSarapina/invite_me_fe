@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import styles from "@/Navbar.module.css";
+import styles from "./Navbar.module.css";
 import { Dispatch, SetStateAction, useEffect, useMemo, useRef } from "react";
 import { useStore } from "@/stores/context";
 import { useRouter } from "next/navigation";
@@ -44,10 +44,6 @@ const Navbar: React.FC<NavbarProps> = ({
       bookingStore.fetchBookings();
     }
   }, [userStore.user]);
-
-  const confirmedBookings = useMemo(() => {
-    return bookingStore.bookings.filter((b) => b.status === "confirmed").length;
-  }, [bookingStore.bookings.length]);
 
   const handleLogoClick = async () => {
     await userStore.checkAuth();
@@ -109,11 +105,11 @@ const Navbar: React.FC<NavbarProps> = ({
                 className="nav-link"
               >
                 Bookings
-                {confirmedBookings && (
+                {bookingStore.confirmed > 0 && (
                   <span
                     className={`position-absolute top-0 end-0 badge rounded-pill bg-primary ${styles.badgePosition}`}
                   >
-                    {confirmedBookings}
+                    {bookingStore.confirmed}
                   </span>
                 )}
               </Link>

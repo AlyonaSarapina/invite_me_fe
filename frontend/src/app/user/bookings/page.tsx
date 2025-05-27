@@ -9,47 +9,37 @@ import BookingItem from "@/components/BookingItem";
 import CancelModal from "@/components/CancelModal";
 import PaginationControls from "@/components/Pagination";
 
-const BOOKINGS_PER_PAGE = 5;
-
 const BookingsPage = () => {
   const { bookingStore, userStore } = useStore();
-  const { bookings, fetchBookings, cancelBooking } = bookingStore;
+  const {
+    bookings,
+    fetchBookings,
+    cancelBooking,
+    allStatuses,
+    allRestaurants,
+    sortOrder,
+    setSortOrder,
+    statusFilter,
+    setStatusFilter,
+    restaurantFilter,
+    setRestaurantFilter,
+    totalCount,
+    currentPage,
+    bookingsPerPage,
+  } = bookingStore;
 
-  const [sortOrder, setSortOrder] = useState("newest");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [restaurantFilter, setRestaurantFilter] = useState("all");
   const [selectedBookingId, setSelectedBookingId] = useState<number | null>(
     null
   );
-  const [currentPage, setCurrentPage] = useState(1);
 
-  const filtered = bookings.filter(
-    (b) =>
-      (statusFilter === "all" || b.status === statusFilter) &&
-      (restaurantFilter === "all" ||
-        b.table.restaurant.name === restaurantFilter)
-  );
+  const handlePageChange = (page: number) => {
+    bookingStore.setCurrentPage(page);
+    fetchBookings();
+  };
 
-  const allRestaurants = [
-    ...new Set(bookings.map((b) => b.table.restaurant.name)),
-  ];
-
-  const allStatuses = [...new Set(bookings.map((b) => b.status))];
-
-  const sortedAndFiltered = [...filtered].sort((a, b) => {
-    const diff =
-      new Date(a.start_time).getTime() - new Date(b.start_time).getTime();
-    return sortOrder === "newest" ? -diff : diff;
-  });
-
-  const startIdx = (currentPage - 1) * BOOKINGS_PER_PAGE;
-
-  const paginatedBookings = sortedAndFiltered.slice(
-    startIdx,
-    startIdx + BOOKINGS_PER_PAGE
-  );
-
-  const handlePageChange = (page: number) => setCurrentPage(page);
+  useEffect(() => {
+    fetchBookings();
+  }, []);
 
   const handleCancelConfirm = async () => {
     if (!selectedBookingId) return;
@@ -62,10 +52,6 @@ const BookingsPage = () => {
     }
     setSelectedBookingId(null);
   };
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [statusFilter, restaurantFilter, sortOrder]);
 
   return (
     <div className="container py-5">
@@ -82,11 +68,11 @@ const BookingsPage = () => {
         restaurants={allRestaurants}
       />
 
-      {paginatedBookings.length === 0 ? (
+      {bookings.length === 0 ? (
         <p className="text-muted">No bookings match your filters.</p>
       ) : (
         <div className="d-flex flex-column gap-2">
-          {paginatedBookings.map((booking) => (
+          {bookings.map((booking) => (
             <BookingItem
               key={booking.id}
               userRole={userStore.user?.role}
@@ -98,8 +84,8 @@ const BookingsPage = () => {
       )}
 
       <PaginationControls
-        totalItems={sortedAndFiltered.length}
-        itemsPerPage={BOOKINGS_PER_PAGE}
+        totalItems={totalCount}
+        itemsPerPage={bookingsPerPage}
         currentPage={currentPage}
         onPageChange={handlePageChange}
       />

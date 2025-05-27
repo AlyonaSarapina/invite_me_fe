@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useStore } from "@/stores/context";
 import RestaurantCard from "@/components/RestaurantCard";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Filters from "@/components/Filters";
 import PaginationControls from "@/components/Pagination";
 import CreateRestaurantCard from "@/components/CreateRestaurantCard";
@@ -12,13 +12,12 @@ import RestaurantCreateModal from "@/components/RestaurantModal";
 import { Instance } from "mobx-state-tree";
 import RestaurantModel from "@/stores/models/RestaurantModel";
 
-const RESTAURANTS_PER_PAGE = 10;
-
 const RestaurantsList = () => {
   const { restaurantStore, userStore } = useStore();
   const {
     filters,
     restaurants,
+    restaurantsPerPage,
     fetchRestaurants,
     currentPage,
     setNameFilter,
@@ -32,6 +31,14 @@ const RestaurantsList = () => {
     Instance<typeof RestaurantModel> | undefined
   >(undefined);
   const [showModal, setShowModal] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("page", page.toString());
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   const syncParamsToStore = () => {
     const page = parseInt(searchParams.get("page") || "1", 10);
@@ -55,7 +62,11 @@ const RestaurantsList = () => {
 
   useEffect(() => {
     if (userStore.user) {
-      fetchRestaurants();
+      if (userStore.isOwner) {
+        fetchRestaurants(true);
+      } else {
+        fetchRestaurants();
+      }
     }
   }, [
     userStore.user,
@@ -65,12 +76,6 @@ const RestaurantsList = () => {
     filters.cuisines.join(","),
     currentPage,
   ]);
-
-  const startIdx = (currentPage - 1) * RESTAURANTS_PER_PAGE;
-  const paginatedRestaurants = restaurants.slice(
-    startIdx,
-    startIdx + RESTAURANTS_PER_PAGE
-  );
 
   return (
     <div className="container py-5">
@@ -85,12 +90,12 @@ const RestaurantsList = () => {
         </div>
         <div className="col-12">
           <div className="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
-            {userStore.isOwner && (
+            {userStore.isOwner && currentPage === 1 && (
               <div className="col">
                 <CreateRestaurantCard onClick={() => setShowModal(true)} />
               </div>
             )}
-            {paginatedRestaurants.map((restaurant) => (
+            {restaurants.map((restaurant) => (
               <div className="col" key={restaurant.id}>
                 <RestaurantCard
                   setRestaurantToEdit={setRestaurantToEdit}
@@ -111,10 +116,10 @@ const RestaurantsList = () => {
         </div>
       </div>
       <PaginationControls
-        totalItems={restaurants.length}
-        itemsPerPage={RESTAURANTS_PER_PAGE}
+        totalItems={restaurantStore.totalCount}
+        itemsPerPage={restaurantsPerPage}
         currentPage={currentPage}
-        onPageChange={setCurrentPage}
+        onPageChange={handlePageChange}
       />
     </div>
   );
