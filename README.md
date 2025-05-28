@@ -34,7 +34,8 @@
 - **JWT Authentication**
 - **Multer + Cloudinary** (file uploads)
 - **Class-validator** for validation
-- **Jest** for unit and e2e testing
+- **Class-transformer** for transformation of incoming data
+- **Jest** for unit testing
 
 ### Frontend
 
