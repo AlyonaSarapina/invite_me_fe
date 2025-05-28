@@ -3,6 +3,7 @@ import { Dispatch, SetStateAction } from "react";
 import BookingModel from "@/stores/models/BookingModel";
 import { Instance } from "mobx-state-tree";
 import styles from "./BookingItem.module.css";
+import { BookingStatus } from "@/types/enums";
 
 interface BookingItemProps {
   userRole?: string;
@@ -15,7 +16,8 @@ const BookingItem: React.FC<BookingItemProps> = ({
   booking,
   onCancel,
 }) => {
-  const isCancelled = booking.status === "cancelled";
+  const isCancelled = booking.status === BookingStatus.CANCELLED;
+  const isCompleted = booking.status === BookingStatus.COMPLETED;
 
   return (
     <div className="list-group-item p-3 border shadow-sm rounded mb-2 bg-white bg-opacity-75">
@@ -93,7 +95,7 @@ const BookingItem: React.FC<BookingItemProps> = ({
           </>
         )}
         <div className="col-md-2 col-4 d-flex flex-column ms-auto">
-          {isCancelled ? (
+          {isCancelled || isCompleted ? (
             <div className={styles.button_placeholder} />
           ) : (
             <button

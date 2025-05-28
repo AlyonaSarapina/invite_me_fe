@@ -86,6 +86,13 @@ export class BookingsService {
       return { data: [], total: 0, confirmed: 0, restaurantNamesList: [] };
     }
 
+    const confirmed = await this.bookingRepo.count({
+      where: {
+        ...where,
+        status: BookingStatus.CONFIRMED,
+      },
+    });
+
     const restaurantNames = await this.bookingRepo
       .createQueryBuilder('booking')
       .leftJoin('booking.table', 'table')
@@ -133,7 +140,6 @@ export class BookingsService {
       }
 
       const [data, total] = await qb.getManyAndCount();
-      const confirmed = data.filter((b) => b.status === BookingStatus.CONFIRMED).length;
 
       return this.updateExpiredBookings(data, total, confirmed, restaurantNamesList);
     }
@@ -147,8 +153,6 @@ export class BookingsService {
         start_time: sortOrder === 'newest' ? 'DESC' : 'ASC',
       },
     });
-
-    const confirmed = data.filter((b) => b.status === BookingStatus.CONFIRMED).length;
 
     return this.updateExpiredBookings(data, total, confirmed, restaurantNamesList);
   }
@@ -324,18 +328,21 @@ export class BookingsService {
     const booking = await this.bookingRepo.findOne({
       where: { id },
       withDeleted: false,
-      relations: ['client'],
+      relations: ['client', 'table', 'table.restaurant', 'table.restaurant.owner'],
     });
 
     if (!booking) throwNotFound('Booking');
 
-    if (booking.client.id !== user.id) throwForbidden('You are not allowed to cancel this booking');
+    const isClient = booking.client.id === user.id;
+    const isOwner = booking.table.restaurant.owner.id === user.id;
+
+    if (!isClient && !isOwner) throwForbidden('You are not allowed to cancel this booking');
 
     booking.status = BookingStatus.CANCELED;
 
     const canceledBooking = await this.bookingRepo.save(booking);
 
-    await this.bookingRepo.softRemove(booking);
+    await this.bookingRepo.save(booking);
 
     return canceledBooking;
   }

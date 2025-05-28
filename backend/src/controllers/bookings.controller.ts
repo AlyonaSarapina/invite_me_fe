@@ -6,7 +6,6 @@ import { AvailableSlotsDto } from 'src/dto/availibleStot.dto';
 import { CreateBookingDto } from 'src/dto/createBooking.dto';
 import { GetBookingsQueryDto } from 'src/dto/getBookingsQuery.dto';
 import { UpdateBookingStatusDto } from 'src/dto/updateBooking.dto';
-import { UserRole } from 'src/enums/userRole.enum';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { BookingsService } from 'src/services/bookings.service';
 import { throwForbidden } from 'src/utils/exceprions.utils';

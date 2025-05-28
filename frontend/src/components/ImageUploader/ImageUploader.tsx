@@ -54,7 +54,7 @@ const ImageUploader = ({
         className={`position-relative d-inline-block mb-2 ${styles.imageWrapper}`}
       >
         <img
-          src={imageUrl || (id ? "./default-restaurant.png" : "./user.png")}
+          src={imageUrl || (id ? "/default-restaurant.png" : "/user.png")}
           alt="Uploaded"
           className={`img-fluid ${styles.imagePreview}`}
           style={{ width: `${size}px`, height: `${size}px` }}

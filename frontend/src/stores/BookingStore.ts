@@ -153,6 +153,13 @@ export const BookingStore = types
       self.availableSlots.clear();
     };
 
+    const resetFilters = () => {
+      self.statusFilter = "all";
+      self.restaurantFilter = "all";
+      self.sortOrder = SortDate.NEWEST;
+      self.currentPage = 1;
+    };
+
     return {
       fetchBookings,
       fetchAvailableSlots,
@@ -163,6 +170,7 @@ export const BookingStore = types
       setStatusFilter,
       setRestaurantFilter,
       setCurrentPage,
+      resetFilters,
     };
   });
 

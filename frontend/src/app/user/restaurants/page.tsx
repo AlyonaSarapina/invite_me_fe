@@ -49,13 +49,20 @@ const RestaurantsList = () => {
     const isPetFriendly = searchParams.get("is_pet_friendly");
     const cuisineParam = searchParams.get("cuisine");
 
-    setCurrentPage(page);
-    setNameFilter(name);
-    setMinRatingFilter(minRating ? parseInt(minRating) : null);
-    setIsPetFriendlyFilter(isPetFriendly === "true" ? true : null);
-    setCuisinesFilter(
-      cuisineParam ? cuisineParam.split(",").filter(Boolean) : []
-    );
+    if (page !== currentPage) setCurrentPage(page);
+    if (name !== filters.name) setNameFilter(name);
+    if ((minRating ? parseInt(minRating) : null) !== filters.minRating)
+      setMinRatingFilter(minRating ? parseInt(minRating) : null);
+    if ((isPetFriendly === "true" ? true : null) !== filters.isPetFriendly)
+      setIsPetFriendlyFilter(isPetFriendly === "true" ? true : null);
+
+    const cuisinesFromParams = cuisineParam
+      ? cuisineParam.split(",").filter(Boolean)
+      : [];
+
+    if (cuisinesFromParams.join(",") !== filters.cuisines.join(",")) {
+      setCuisinesFilter(cuisinesFromParams);
+    }
   };
 
   useEffect(() => {
@@ -78,6 +85,10 @@ const RestaurantsList = () => {
     filters.cuisines.join(","),
     currentPage,
   ]);
+
+  const adjustedTotal = userStore.isOwner
+    ? restaurantStore.totalCount + 1
+    : restaurantStore.totalCount;
 
   return (
     <div className="container py-5">
@@ -128,7 +139,7 @@ const RestaurantsList = () => {
         </div>
       </div>
       <PaginationControls
-        totalItems={restaurantStore.totalCount}
+        totalItems={adjustedTotal}
         itemsPerPage={restaurantsPerPage}
         currentPage={currentPage}
         onPageChange={handlePageChange}

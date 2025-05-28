@@ -32,7 +32,9 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
   };
 
   useEffect(() => {
-    getTablesLength();
+    if (userStore.isOwner) {
+      getTablesLength();
+    }
   }, []);
 
   return (

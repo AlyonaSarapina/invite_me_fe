@@ -1,12 +1,8 @@
-"use client";
-
 import { createContext, useContext } from "react";
 import { Instance } from "mobx-state-tree";
 import { RootStore } from "./RootStore";
 
-export const StoreContext = createContext<null | Instance<typeof RootStore>>(
-  null
-);
+const StoreContext = createContext<Instance<typeof RootStore> | null>(null);
 
 export const StoreProvider = ({
   children,

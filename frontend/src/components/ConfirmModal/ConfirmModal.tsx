@@ -1,31 +1,34 @@
-import { Dispatch, SetStateAction } from "react";
 import { Modal, Button } from "react-bootstrap";
 
-interface CancelModalProps {
+interface ConfirmModalProps {
   show: boolean;
   onClose: () => void;
   onConfirm: () => Promise<void>;
+  title?: string;
+  body?: React.ReactNode;
 }
 
-const CancelModal: React.FC<CancelModalProps> = ({
+const ConfirmModal: React.FC<ConfirmModalProps> = ({
   show,
   onClose,
   onConfirm,
+  title = "Confirm Action",
+  body = "Are you sure you want to proceed?",
 }) => (
   <Modal show={show} onHide={onClose} centered>
     <Modal.Header closeButton>
-      <Modal.Title>Cancel Booking</Modal.Title>
+      <Modal.Title>{title}</Modal.Title>
     </Modal.Header>
-    <Modal.Body>Are you sure you want to cancel this booking?</Modal.Body>
+    <Modal.Body>{body}</Modal.Body>
     <Modal.Footer>
       <Button variant="secondary" onClick={onClose}>
         Close
       </Button>
       <Button variant="danger" onClick={onConfirm}>
-        Yes, Cancel Booking
+        Yes
       </Button>
     </Modal.Footer>
   </Modal>
 );
 
-export default CancelModal;
+export default ConfirmModal;

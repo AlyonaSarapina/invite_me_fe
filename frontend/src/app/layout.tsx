@@ -7,10 +7,11 @@ import "react-loading-skeleton/dist/skeleton.css";
 
 import { ReactNode } from "react";
 import { StoreProvider } from "@/stores/context";
-import { store } from "@/stores";
 import { ToastContainer } from "react-toastify";
+import { initializeStore } from "@/stores";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  const store = initializeStore();
   return (
     <html lang="en">
       <head>

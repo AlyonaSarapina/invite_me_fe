@@ -1,10 +1,18 @@
 import { RootStore } from "./RootStore";
 
-export const store = RootStore.create({
-  userStore: {},
-  loginStore: {},
-  registerStore: {},
-  restaurantStore: {},
-  bookingStore: {},
-  tableStore: {},
-});
+let store: ReturnType<typeof RootStore.create> | null = null;
+
+export function initializeStore() {
+  if (store) return store;
+
+  store = RootStore.create({
+    userStore: {},
+    loginStore: {},
+    registerStore: {},
+    restaurantStore: {},
+    bookingStore: {},
+    tableStore: {},
+  });
+
+  return store;
+}

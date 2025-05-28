@@ -21,7 +21,7 @@ export enum Cuisine {
 
 export enum BookingStatus {
   CONFIRMED = "confirmed",
-  CANCELED = "cancelled",
+  CANCELLED = "cancelled",
   COMPLETED = "completed",
 }
 

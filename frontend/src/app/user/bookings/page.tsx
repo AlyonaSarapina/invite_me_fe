@@ -6,9 +6,9 @@ import { useStore } from "@/stores/context";
 import { toast } from "react-toastify";
 import BookingFilters from "@/components/BookingFilters";
 import BookingItem from "@/components/BookingItem";
-import CancelModal from "@/components/CancelModal";
 import PaginationControls from "@/components/Pagination";
 import BookingItemSkeleton from "@/components/BookingItemSkeleton";
+import ConfirmModal from "@/components/ConfirmModal";
 
 const BookingsPage = () => {
   const { bookingStore, userStore } = useStore();
@@ -28,6 +28,7 @@ const BookingsPage = () => {
     totalCount,
     currentPage,
     bookingsPerPage,
+    resetFilters,
   } = bookingStore;
 
   const [selectedBookingId, setSelectedBookingId] = useState<number | null>(
@@ -40,19 +41,26 @@ const BookingsPage = () => {
   };
 
   useEffect(() => {
+    resetFilters();
     fetchBookings();
   }, []);
 
   const handleCancelConfirm = async () => {
     if (!selectedBookingId) return;
-    const res = await cancelBooking(selectedBookingId);
-    if (res?.status === "cancelled") {
-      toast.success("Booking is cancelled");
-      fetchBookings();
-    } else {
-      toast.error("Failed to cancel booking");
+    try {
+      const res = await cancelBooking(selectedBookingId);
+      if (res?.status === "cancelled") {
+        toast.success("Booking is cancelled");
+        fetchBookings();
+      } else {
+        toast.error("Failed to cancel booking");
+      }
+    } catch (error) {
+      toast.error("An error occurred while cancelling the booking.");
+      console.error("Cancel booking error:", error);
+    } finally {
+      setSelectedBookingId(null);
     }
-    setSelectedBookingId(null);
   };
 
   return (
@@ -98,10 +106,12 @@ const BookingsPage = () => {
         onPageChange={handlePageChange}
       />
 
-      <CancelModal
+      <ConfirmModal
         show={selectedBookingId !== null}
         onClose={() => setSelectedBookingId(null)}
         onConfirm={handleCancelConfirm}
+        title="Cancel Booking"
+        body="Are you sure you want to cancel this booking?"
       />
     </div>
   );

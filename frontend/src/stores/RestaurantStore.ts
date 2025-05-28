@@ -18,12 +18,11 @@ export const RestaurantStore = types
       self.loading = true;
       try {
         const { currentPage, filters, restaurantsPerPage } = self;
-        const limit =
-          isOwner && currentPage === 1
-            ? restaurantsPerPage - 1
-            : restaurantsPerPage;
+        const limit = isOwner ? restaurantsPerPage - 1 : restaurantsPerPage;
 
-        const offset = (currentPage - 1) * limit;
+        const offset = isOwner
+          ? (currentPage - 1) * (restaurantsPerPage - 1)
+          : (currentPage - 1) * restaurantsPerPage;
 
         const query = new URLSearchParams();
 
@@ -39,8 +38,6 @@ export const RestaurantStore = types
         query.set("limit", limit.toString());
 
         const res = yield api.get(`/restaurants?${query.toString()}`);
-
-        console.log(res.data);
 
         self.restaurants = res.data.data;
         self.totalCount = res.data.total;
@@ -135,6 +132,18 @@ export const RestaurantStore = types
       }
     });
 
+    const deleteRestaurant = flow(function* (id: number) {
+      self.loading = true;
+      try {
+        const res = yield api.delete(`/restaurants/${id}`);
+        fetchRestaurants();
+      } catch (err) {
+        console.error("Failed to delete restaurant", err);
+      } finally {
+        self.loading = false;
+      }
+    });
+
     const setCurrentPage = (page: number) => {
       self.currentPage = page;
     };
@@ -167,6 +176,7 @@ export const RestaurantStore = types
       updateRestaurant,
       createRestaurant,
       uploadFile,
+      deleteRestaurant,
     };
   });
 
