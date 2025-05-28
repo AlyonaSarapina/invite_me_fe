@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
+import Skeleton from "react-loading-skeleton";
 import { useStore } from "@/stores/context";
 import RestaurantCard from "@/components/RestaurantCard";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -16,6 +17,7 @@ const RestaurantsList = () => {
   const { restaurantStore, userStore } = useStore();
   const {
     filters,
+    loading,
     restaurants,
     restaurantsPerPage,
     fetchRestaurants,
@@ -90,20 +92,30 @@ const RestaurantsList = () => {
         </div>
         <div className="col-12">
           <div className="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
-            {userStore.isOwner && currentPage === 1 && (
-              <div className="col">
-                <CreateRestaurantCard onClick={() => setShowModal(true)} />
-              </div>
+            {loading ? (
+              Array.from({ length: restaurantsPerPage }).map((_, index) => (
+                <div className="col" key={index}>
+                  <Skeleton height={300} duration={2} />
+                </div>
+              ))
+            ) : (
+              <>
+                {userStore.isOwner && currentPage === 1 && (
+                  <div className="col">
+                    <CreateRestaurantCard onClick={() => setShowModal(true)} />
+                  </div>
+                )}
+                {restaurants.map((restaurant) => (
+                  <div className="col" key={restaurant.id}>
+                    <RestaurantCard
+                      setRestaurantToEdit={setRestaurantToEdit}
+                      setShowModal={setShowModal}
+                      restaurant={restaurant}
+                    />
+                  </div>
+                ))}
+              </>
             )}
-            {restaurants.map((restaurant) => (
-              <div className="col" key={restaurant.id}>
-                <RestaurantCard
-                  setRestaurantToEdit={setRestaurantToEdit}
-                  setShowModal={setShowModal}
-                  restaurant={restaurant}
-                />
-              </div>
-            ))}
           </div>
           <RestaurantCreateModal
             show={showModal}

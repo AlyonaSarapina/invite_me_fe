@@ -8,11 +8,13 @@ import BookingFilters from "@/components/BookingFilters";
 import BookingItem from "@/components/BookingItem";
 import CancelModal from "@/components/CancelModal";
 import PaginationControls from "@/components/Pagination";
+import BookingItemSkeleton from "@/components/BookingItemSkeleton";
 
 const BookingsPage = () => {
   const { bookingStore, userStore } = useStore();
   const {
     bookings,
+    loading,
     fetchBookings,
     cancelBooking,
     allStatuses,
@@ -68,7 +70,13 @@ const BookingsPage = () => {
         restaurants={allRestaurants}
       />
 
-      {bookings.length === 0 ? (
+      {loading ? (
+        <div className="d-flex flex-column gap-2">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <BookingItemSkeleton key={i} />
+          ))}
+        </div>
+      ) : bookings.length === 0 ? (
         <p className="text-muted">No bookings match your filters.</p>
       ) : (
         <div className="d-flex flex-column gap-2">

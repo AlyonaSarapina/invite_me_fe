@@ -15,9 +15,9 @@ export class TablesController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('owner')
-  @Get(':id')
-  async getTablesByRestaurant(@Param('id', ParseIntPipe) id: number): Promise<Table> {
-    return this.tablesService.getTableById(id);
+  @Get('/restaurant/:restaurantId')
+  async getTablesByRestaurant(@Param('restaurantId', ParseIntPipe) restaurantId: number): Promise<Table[]> {
+    return this.tablesService.getTablesByRestaurant(restaurantId);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

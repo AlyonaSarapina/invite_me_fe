@@ -3,6 +3,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/global.css";
 import "react-phone-input-2/lib/bootstrap.css";
+import "react-loading-skeleton/dist/skeleton.css";
 
 import { ReactNode } from "react";
 import { StoreProvider } from "@/stores/context";

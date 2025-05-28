@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { Instance } from "mobx-state-tree";
 import RestaurantModel from "@/stores/models/RestaurantModel";
 import ImageUploader from "@/components/ImageUploader";
+import RestaurantSkeleton from "@/components/RestaurantSkeleton";
 
 const RestaurantDetailsPage = () => {
   const { id } = useParams();
@@ -57,7 +58,7 @@ const RestaurantDetailsPage = () => {
       setRestaurant({
         ...restaurant,
         menu_url: data.menu_url,
-      });
+      } as Instance<typeof RestaurantModel>);
       console.log(data.menu_url);
     } catch {
       toast.error("Upload failed");
@@ -67,17 +68,25 @@ const RestaurantDetailsPage = () => {
     }
   };
 
-  if (restaurantStore.loading)
-    return (
-      <div className="container py-5">
-        <p className="text-center fs-3">Loading...</p>
-      </div>
-    );
+  if (restaurantStore.loading) {
+    return <RestaurantSkeleton />;
+  }
 
-  if (!restaurant || restaurantStore.error)
+  if (!restaurant)
     return (
-      <div className="container py-5">
-        <p className="text-center fs-1">Restaurant not found</p>
+      <div className="px-4 py-5">
+        <button
+          onClick={handleBack}
+          className="mb-4 btn btn-primary align-self-start"
+        >
+          <i className="fas fa-arrow-left"></i> Back
+        </button>
+        <div className="text-center">
+          <h1 className="text-5xl font-bold text-red-600 mb-4">404</h1>
+          <p className="text-xl text-gray-700 mb-6">
+            Oops! The restaurant you're looking for is not found.
+          </p>
+        </div>
       </div>
     );
 

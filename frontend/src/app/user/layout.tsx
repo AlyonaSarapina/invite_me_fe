@@ -10,19 +10,10 @@ function UserLayout({ children }: { children: ReactNode }) {
   const { userStore } = useStore();
   const { authReady } = useRequireAuth();
   const [isNavOpen, setIsNavOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
   const handleToggle = () => {
     setIsNavOpen(!isNavOpen);
   };
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted || (!authReady && !userStore.loading)) {
-    return <div className="text-center py-5">Loading...</div>;
-  }
 
   return (
     <div className="d-flex flex-column min-vh-100 bg-white">

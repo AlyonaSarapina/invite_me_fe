@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Booking } from 'src/db/entities/booking.entity';
-import { Restaurant } from 'src/db/entities/restaurant.entity';
 import { Table } from 'src/db/entities/table.entity';
 import { User } from 'src/db/entities/user.entity';
 import { CreateBookingDto } from 'src/dto/createBooking.dto';
-import { In, IsNull, LessThan, MoreThan, Not, Repository } from 'typeorm';
+import { FindOptionsWhere, In, IsNull, LessThan, MoreThan, Not, Repository } from 'typeorm';
 import { TablesService } from './tables.service';
 import { RestaurantsService } from './restaurants.service';
 import { throwConflict, throwForbidden, throwNotFound } from 'src/utils/exceprions.utils';
@@ -16,6 +15,7 @@ import { UpdateBookingStatusDto } from 'src/dto/updateBooking.dto';
 import { addMinutes, isBefore, format, subMinutes } from 'date-fns';
 import { DaysMap } from 'src/enums/weekDays.enum';
 import { AvailableSlotsDto } from 'src/dto/availibleStot.dto';
+import { GetBookingsQueryDto } from 'src/dto/getBookingsQuery.dto';
 
 @Injectable()
 export class BookingsService {
@@ -28,7 +28,12 @@ export class BookingsService {
     private readonly tableService: TablesService,
   ) {}
 
-  private async updateExpiredBookings(bookings: Booking[]): Promise<Booking[]> {
+  private async updateExpiredBookings(
+    bookings: Booking[],
+    total: number,
+    confirmed: number,
+    restaurantNamesList: string[],
+  ): Promise<{ data: Booking[]; total: number; confirmed: number; restaurantNamesList: string[] }> {
     const now = new Date();
     const expired = bookings.filter((b) => b.status === BookingStatus.CONFIRMED && b.end_time < now);
 
@@ -37,37 +42,115 @@ export class BookingsService {
       await this.bookingRepo.save(booking);
     }
 
-    return bookings;
+    return { data: bookings, total, confirmed, restaurantNamesList };
   }
 
-  async getClientsBookings(userId: number): Promise<Booking[]> {
-    const bookings = await this.bookingRepo.find({
-      where: { client: { id: userId } },
-      relations: ['table', 'table.restaurant', 'client'],
-      withDeleted: true,
-    });
+  private async getWhereConditionsForRole(
+    userId: number,
+    role: 'client' | 'owner',
+  ): Promise<{ where: FindOptionsWhere<Booking>; tableIds: number[] }> {
+    const where: FindOptionsWhere<Booking> = {
+      deleted_at: IsNull(),
+    };
+    let tableIds: number[] = [];
 
-    return await this.updateExpiredBookings(bookings);
+    if (role === UserRole.CLIENT) {
+      where.client = { id: userId };
+    }
+
+    if (role === UserRole.OWNER) {
+      const ownerRestaurants = await this.restaurantService.getOwnedRestaurants(userId);
+      tableIds = ownerRestaurants.flatMap((restaurant) => restaurant.tables.map((table) => table.id));
+
+      if (!tableIds.length) {
+        return { where: {}, tableIds: [] };
+      }
+
+      where.table = { id: In(tableIds) };
+    }
+
+    return { where, tableIds };
   }
 
-  async getOwnersBookings(userId: number): Promise<Booking[]> {
-    const ownerRestaurants = await this.restaurantService.getOwnedRestaurants(userId);
+  async getBookingsByRole(
+    userId: number,
+    role: 'client' | 'owner',
+    query: GetBookingsQueryDto,
+  ): Promise<{ data: Booking[]; total: number; confirmed: number; restaurantNamesList: string[] }> {
+    const { limit = 10, offset = 0, status, restaurantName, sortOrder } = query;
 
-    const tableIds = ownerRestaurants
-      .flatMap((restaurant: Restaurant) => restaurant.tables)
-      .map((table: Table) => table.id);
+    const relations = ['table', 'table.restaurant', 'client'];
+    const { where, tableIds } = await this.getWhereConditionsForRole(userId, role);
 
-    if (!tableIds.length) return [];
+    if (role === UserRole.OWNER && tableIds.length === 0) {
+      return { data: [], total: 0, confirmed: 0, restaurantNamesList: [] };
+    }
 
-    const bookings = await this.bookingRepo.find({
-      where: {
-        table: In(tableIds),
-        deleted_at: IsNull(),
+    const restaurantNames = await this.bookingRepo
+      .createQueryBuilder('booking')
+      .leftJoin('booking.table', 'table')
+      .leftJoin('table.restaurant', 'restaurant')
+      .select('DISTINCT restaurant.name', 'name')
+      .where(where)
+      .getRawMany();
+
+    const restaurantNamesList = restaurantNames.map((r) => r.name);
+
+    if (status) {
+      where.status = status;
+    }
+
+    if (restaurantName) {
+      const qb = this.bookingRepo
+        .createQueryBuilder('booking')
+        .leftJoinAndSelect('booking.client', 'client')
+        .leftJoinAndSelect('booking.table', 'table')
+        .leftJoinAndSelect('table.restaurant', 'restaurant')
+        .where('booking.deleted_at IS NULL');
+
+      if (status) {
+        qb.andWhere('booking.status = :status', { status });
+      }
+
+      if (role === UserRole.CLIENT) {
+        qb.andWhere('client.id = :userId', { userId });
+      }
+
+      if (role === UserRole.OWNER) {
+        qb.andWhere('table.id IN (:...tableIds)', { tableIds });
+      }
+
+      qb.andWhere('restaurant.name ILIKE :restaurantName', {
+        restaurantName: `%${restaurantName}%`,
+      });
+
+      qb.skip(offset).take(limit);
+
+      if (sortOrder === 'newest') {
+        qb.orderBy('booking.start_time', 'DESC');
+      } else if (sortOrder === 'oldest') {
+        qb.orderBy('booking.start_time', 'ASC');
+      }
+
+      const [data, total] = await qb.getManyAndCount();
+      const confirmed = data.filter((b) => b.status === BookingStatus.CONFIRMED).length;
+
+      return this.updateExpiredBookings(data, total, confirmed, restaurantNamesList);
+    }
+
+    const [data, total] = await this.bookingRepo.findAndCount({
+      where,
+      relations,
+      take: limit,
+      skip: offset,
+      order: {
+        start_time: sortOrder === 'newest' ? 'DESC' : 'ASC',
       },
-      relations: ['table', 'table.restaurant', 'client'],
     });
 
-    return await this.updateExpiredBookings(bookings);
+    const confirmed = data.filter((b) => b.status === BookingStatus.CONFIRMED).length;
+
+    return this.updateExpiredBookings(data, total, confirmed, restaurantNamesList);
   }
 
   async createBooking(restaurantId: number, createBookingDto: CreateBookingDto, user: User): Promise<Booking> {

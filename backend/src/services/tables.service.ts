@@ -8,6 +8,7 @@ import { IsNull, Repository } from 'typeorm';
 import { RestaurantsService } from './restaurants.service';
 import { throwBadRequest, throwForbidden, throwNotFound } from 'src/utils/exceprions.utils';
 import { UpdateTableDto } from 'src/dto/updateTable.dto';
+import { number } from 'joi';
 
 @Injectable()
 export class TablesService {
@@ -47,6 +48,16 @@ export class TablesService {
     if (currentTableCount.length >= restaurant.tables_capacity) {
       throwBadRequest(
         `This restaurant already has the maximum allowed number of tables (${restaurant.tables_capacity}). To add a table please remove one of the existing tables first`,
+      );
+    }
+
+    const hasTableNumber = currentTableCount
+      .map((table) => table.table_number)
+      .some((number) => number === dto.table_number);
+
+    if (hasTableNumber) {
+      throwBadRequest(
+        `This restaurant already has the table with this table number. Please choose another number for new table`,
       );
     }
 
