@@ -128,13 +128,10 @@ npm run dev
 
 ## 🧪 Testing
 
-```bash
+````bash
 # Unit Tests
 npm run test
 
-# End-to-End Tests
-npm run test:e2e
-```
 
 ---
 
@@ -148,7 +145,7 @@ CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 PORT=3000 or any other
-```
+````
 
 ---
 
