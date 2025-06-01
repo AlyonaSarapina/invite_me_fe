@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
@@ -16,9 +17,7 @@
     "date-fns": "^4.1.0",
     "formik": "^2.4.6",
     "lodash": "^4.17.21",
-    "mobx": "^6.13.7",
     "mobx-react": "^9.2.0",
-    "mobx-state-tree": "^7.0.2",
     "next": "15.3.1",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",
@@ -31,7 +30,11 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/bootstrap": "^5.2.10",
+    "@types/jest": "^29.5.14",
     "@types/lodash": "^4.17.16",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -39,6 +42,10 @@
     "@types/zxcvbn": "^4.4.5",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
+    "jest": "^29.7.0",
+    "mobx": "^6.13.7",
+    "mobx-state-tree": "^7.0.2",
+    "ts-jest": "^29.3.4",
     "typescript": "^5",
     "zod": "^3.24.4"
   }
