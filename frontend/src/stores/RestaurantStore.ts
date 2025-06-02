@@ -39,7 +39,9 @@ export const RestaurantStore = types
 
         const res = yield api.get(`/restaurants?${query.toString()}`);
 
-        self.restaurants = res.data.data;
+        self.restaurants = Array.isArray(res.data.data)
+          ? cast(res.data.data)
+          : cast([]);
         self.totalCount = res.data.total;
       } catch (err: any) {
         console.error("Failed to fetch restaurants", err);
@@ -165,6 +167,13 @@ export const RestaurantStore = types
       self.filters.cuisines = cast(newCuisines);
     };
 
+    const resetFilters = () => {
+      self.filters.name = "";
+      self.filters.minRating = null;
+      self.filters.isPetFriendly = null;
+      self.filters.cuisines.clear();
+    };
+
     return {
       fetchRestaurants,
       setCurrentPage,
@@ -177,6 +186,7 @@ export const RestaurantStore = types
       createRestaurant,
       uploadFile,
       deleteRestaurant,
+      resetFilters,
     };
   });
 

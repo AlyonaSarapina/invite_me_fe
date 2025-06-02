@@ -8,7 +8,7 @@ interface Props {
 const CreateRestaurantCard: React.FC<Props> = ({ onClick }) => {
   return (
     <div
-      className={`card h-100 border-2 bg-light p-3 m-auto ${styles.card_custom}`}
+      className={`card border-2 bg-light p-3 m-auto ${styles.card_custom}`}
       onClick={onClick}
     >
       <div className="card border d-flex justify-content-center border flex-grow-1 flex-column">

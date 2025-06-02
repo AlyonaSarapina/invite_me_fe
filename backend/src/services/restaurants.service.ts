@@ -25,9 +25,9 @@ export class RestaurantsService {
 
     const where: FindOptionsWhere<Restaurant> = {
       deleted_at: IsNull(),
-      ...(min_rating && { rating: MoreThanOrEqual(min_rating) }),
+      ...(min_rating !== undefined && { rating: MoreThanOrEqual(min_rating) }),
       ...(cuisine && { cuisine: In(cuisine) }),
-      is_pet_friendly,
+      ...(typeof is_pet_friendly === 'boolean' && { is_pet_friendly }),
       ...(name && { name: ILike(`${name}%`) }),
     };
 
@@ -65,10 +65,16 @@ export class RestaurantsService {
   }
 
   async getRestaurantById(id: number) {
-    return await this.restaurantRepo.findOneOrFail({
+    const restaurant = await this.restaurantRepo.findOne({
       where: { id, deleted_at: IsNull() },
       relations: ['tables', 'tables.bookings', 'owner'],
     });
+
+    if (!restaurant) {
+      throwNotFound(`Restaurant with ID ${id} not found`);
+    }
+
+    return restaurant;
   }
 
   async create(dto: CreateRestaurantDto, owner: User): Promise<Restaurant> {

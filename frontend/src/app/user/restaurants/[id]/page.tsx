@@ -12,11 +12,12 @@ import ImageUploader from "@/components/ImageUploader";
 import RestaurantSkeleton from "@/components/RestaurantSkeleton";
 import { UserRole } from "@/types/enums";
 import ConfirmModal from "@/components/ConfirmModal";
+import TablesModal from "@/components/TablesModal";
 
 const RestaurantDetailsPage = () => {
   const { id } = useParams();
   const router = useRouter();
-  const { restaurantStore, userStore } = useStore();
+  const { restaurantStore, userStore, tableStore } = useStore();
   const [restaurant, setRestaurant] = useState<Instance<
     typeof RestaurantModel
   > | null>(null);
@@ -24,6 +25,7 @@ const RestaurantDetailsPage = () => {
   const [progress, setProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showTablesModal, setShowTablesModal] = useState(false);
 
   const handleBack = useCallback(() => {
     router.back();
@@ -38,6 +40,9 @@ const RestaurantDetailsPage = () => {
           isOwner
         );
         setRestaurant(data);
+        if (isOwner) {
+          await tableStore.getTableByRestaurant(+id);
+        }
       } catch (err) {
         toast.error("Something went wrong");
       }
@@ -83,6 +88,16 @@ const RestaurantDetailsPage = () => {
       toast.error("Failed to delete restaurant");
     }
     setShowDeleteModal(false);
+  };
+
+  const handleDeleteTable = async (tableId: number) => {
+    try {
+      await tableStore.deleteTable(tableId);
+      toast.success("Table deleted");
+      await tableStore.getTableByRestaurant(restaurant?.id as number);
+    } catch {
+      toast.error("Failed to delete table");
+    }
   };
 
   if (restaurantStore.loading) {
@@ -180,9 +195,63 @@ const RestaurantDetailsPage = () => {
             />
           )}
 
+          {showTablesModal && (
+            <TablesModal
+              show={showTablesModal}
+              restaurantId={restaurant?.id as number}
+              onClose={() => setShowTablesModal(false)}
+              tables={tableStore.tables}
+              onDelete={handleDeleteTable}
+              restaurantCapacity={restaurant?.tables_capacity as number}
+            />
+          )}
+
           <div className="d-flex flex-column gap-2 justify-content-between">
             <h1 className="fw-bold m-0">{restaurant?.name}</h1>
-            <p className="lead text-muted m-0">{restaurant?.cuisine} cuisine</p>
+            <div className="d-flex gap-3 align-items-center">
+              {userStore.isOwner && (
+                <div className="d-flex gap-2">
+                  <button
+                    className="btn btn-sm btn-outline-secondary fw-bold px-2"
+                    onClick={() => setShowTablesModal(true)}
+                  >
+                    Manage Tables
+                  </button>
+                  <input
+                    id="menu-upload"
+                    type="file"
+                    accept="application/pdf"
+                    onChange={handleMenuUpload}
+                    style={{ display: "none" }}
+                  />
+                  <label
+                    htmlFor="menu-upload"
+                    title="Edit menu"
+                    style={{ cursor: "pointer" }}
+                    className="btn btn-sm btn-outline-secondary fw-bold px-2"
+                  >
+                    <i
+                      className="far fa-clipboard"
+                      style={{ fontSize: "16px" }}
+                    />{" "}
+                    Edit menu
+                  </label>
+                </div>
+              )}
+            </div>
+            {uploading && (
+              <div className="progress w-100 mt-2" style={{ height: "6px" }}>
+                <div
+                  className="progress-bar progress-bar-striped progress-bar-animated"
+                  role="progressbar"
+                  style={{ width: `${progress}%` }}
+                  aria-valuenow={progress}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                />
+              </div>
+            )}
+
             <p className="fw-bold m-0">⭐ {+restaurant!.rating} / 5</p>
             {restaurant?.is_pet_friendly && (
               <p className="badge bg-success m-0 align-self-start">
@@ -230,41 +299,7 @@ const RestaurantDetailsPage = () => {
                   📋 Menu
                 </a>
               )}
-              {userStore.isOwner && (
-                <>
-                  <input
-                    id="menu-upload"
-                    type="file"
-                    accept="application/pdf"
-                    onChange={handleMenuUpload}
-                    style={{ display: "none" }}
-                  />
-                  <label
-                    htmlFor="menu-upload"
-                    title="Edit menu"
-                    style={{ cursor: "pointer" }}
-                    className="align-self-center border border-dark px-1 btn btn-sm btn-light"
-                  >
-                    <i
-                      className="far fa-clipboard text-secondary"
-                      style={{ fontSize: "16px" }}
-                    />
-                  </label>
-                </>
-              )}
             </div>
-            {uploading && (
-              <div className="progress mt-2" style={{ height: "6px" }}>
-                <div
-                  className="progress-bar progress-bar-striped progress-bar-animated"
-                  role="progressbar"
-                  style={{ width: `${progress}%` }}
-                  aria-valuenow={progress}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                />
-              </div>
-            )}
           </div>
         </div>
 

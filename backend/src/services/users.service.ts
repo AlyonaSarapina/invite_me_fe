@@ -18,6 +18,7 @@ export class UsersService {
     const user = await this.userRepo.findOne({
       where: { phone },
       withDeleted: false,
+      relations: ['bookings'],
     });
 
     if (!user) throwNotFound('User');

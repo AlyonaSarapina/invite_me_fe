@@ -1,12 +1,14 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { Booking } from 'src/db/entities/booking.entity';
 import { User } from 'src/db/entities/user.entity';
+import { Roles } from 'src/decorators/roles.decorator';
 import { CurrentUser } from 'src/decorators/user.decorator';
 import { AvailableSlotsDto } from 'src/dto/availibleStot.dto';
 import { CreateBookingDto } from 'src/dto/createBooking.dto';
 import { GetBookingsQueryDto } from 'src/dto/getBookingsQuery.dto';
 import { UpdateBookingStatusDto } from 'src/dto/updateBooking.dto';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/guards/roles.guard';
 import { BookingsService } from 'src/services/bookings.service';
 import { throwForbidden } from 'src/utils/exceprions.utils';
 
@@ -26,6 +28,13 @@ export class BookingsController {
     } else {
       throwForbidden('Invalid role');
     }
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('owner')
+  @Get('by-phone/:phone')
+  getByPhone(@Param('phone') phone: string) {
+    return this.bookingsService.findByPhone(phone);
   }
 
   @UseGuards(JwtAuthGuard)

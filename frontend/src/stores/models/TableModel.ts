@@ -8,7 +8,7 @@ const TableModel = types.model("TableModel", {
   created_at: types.string,
   updated_at: types.string,
   deleted_at: types.maybeNull(types.string),
-  restaurant: RestaurantModel,
+  restaurant: types.maybeNull(RestaurantModel),
 });
 
 export default TableModel;

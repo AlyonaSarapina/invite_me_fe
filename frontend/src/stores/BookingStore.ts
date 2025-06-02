@@ -130,7 +130,7 @@ export const BookingStore = types
         return response.data;
       } catch (error: any) {
         self.error = error?.response?.data?.message || "Booking failed";
-        return null;
+        return error;
       } finally {
         self.loading = false;
       }
@@ -149,6 +149,19 @@ export const BookingStore = types
       }
     });
 
+    const fetchBookingsByPhone = flow(function* (phone: string) {
+      self.loading = true;
+      try {
+        const res = yield api.get(`/bookings/by-phone/${phone}`);
+        return res.data;
+      } catch (error: any) {
+        self.error = error?.response?.data?.message || "Failed to find user";
+        return error;
+      } finally {
+        self.loading = false;
+      }
+    });
+
     const clearSlots = () => {
       self.availableSlots.clear();
     };
@@ -162,6 +175,7 @@ export const BookingStore = types
 
     return {
       fetchBookings,
+      fetchBookingsByPhone,
       fetchAvailableSlots,
       createBooking,
       cancelBooking,

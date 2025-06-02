@@ -14,6 +14,7 @@ export const TableStore = types
       self.error = null;
       try {
         const res = yield api.get(`/tables/restaurant/${restaurantId}`);
+        self.tables = cast(res.data);
         return res.data;
       } catch (err: any) {
         console.error("Failed to load tables", err);
@@ -36,7 +37,23 @@ export const TableStore = types
         self.loading = false;
       }
     });
-    return { createTable, getTableByRestaurant };
+
+    const deleteTable = flow(function* (id: number) {
+      self.loading = true;
+      try {
+        const res = yield api.delete(`/tables/${id}`);
+        console.log(res);
+        return res;
+      } catch (err: any) {
+        console.error("Failed to create table", err);
+        self.error = err?.response?.data?.message || "Failed to create table";
+        throw err;
+      } finally {
+        self.loading = false;
+      }
+    });
+
+    return { createTable, getTableByRestaurant, deleteTable };
   });
 
 export interface ITableStore extends Instance<typeof TableStore> {}

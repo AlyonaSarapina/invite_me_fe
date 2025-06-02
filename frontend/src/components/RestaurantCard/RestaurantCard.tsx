@@ -24,18 +24,6 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
 }) => {
   const { userStore, tableStore } = useStore();
   const [tablesLength, setTablesLength] = useState<number | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
-
-  const getTablesLength = async () => {
-    const tables: [] = await tableStore.getTableByRestaurant(restaurant.id);
-    setTablesLength(tables.length);
-  };
-
-  useEffect(() => {
-    if (userStore.isOwner) {
-      getTablesLength();
-    }
-  }, []);
 
   return (
     <div
@@ -59,25 +47,6 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
           </span>
         </div>
         <div className="d-flex flex-column justify-content-between gap-2">
-          {userStore.isOwner && (
-            <div className="d-flex justify-content-between text-dark small fw-bold">
-              <span className="align-self-center">
-                {tablesLength} {tablesLength === 1 ? "table" : "tables"}
-              </span>
-              <button
-                onClick={() => setModalOpen(true)}
-                className="btn btn-sm btn-outline-secondary rounded fw-bold"
-              >
-                Add table
-              </button>
-              <TableModal
-                show={modalOpen}
-                onHide={() => setModalOpen(false)}
-                restaurantId={restaurant.id}
-                onTableAdded={getTablesLength}
-              />
-            </div>
-          )}
           <div className={`text-dark small ${styles.detailsText}`}>
             🍽️ {restaurant.cuisine}
           </div>

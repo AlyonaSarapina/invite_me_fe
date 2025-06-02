@@ -36,6 +36,10 @@ const RestaurantsList = () => {
   const router = useRouter();
   const pathname = usePathname();
 
+  const adjustedTotal = userStore.isOwner
+    ? restaurantStore.totalCount + 1
+    : restaurantStore.totalCount;
+
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams);
     params.set("page", page.toString());
@@ -43,31 +47,70 @@ const RestaurantsList = () => {
   };
 
   const syncParamsToStore = () => {
-    const page = parseInt(searchParams.get("page") || "1", 10);
-    const name = searchParams.get("name")?.toLowerCase() || "";
-    const minRating = searchParams.get("min_rating");
-    const isPetFriendly = searchParams.get("is_pet_friendly");
-    const cuisineParam = searchParams.get("cuisine");
+    const params = new URLSearchParams(searchParams);
+    let shouldRedirect = false;
 
-    if (page !== currentPage) setCurrentPage(page);
-    if (name !== filters.name) setNameFilter(name);
-    if ((minRating ? parseInt(minRating) : null) !== filters.minRating)
-      setMinRatingFilter(minRating ? parseInt(minRating) : null);
-    if ((isPetFriendly === "true" ? true : null) !== filters.isPetFriendly)
-      setIsPetFriendlyFilter(isPetFriendly === "true" ? true : null);
+    let page = parseInt(params.get("page") || "1", 10);
+    let name = params.get("name")?.toLowerCase() || "";
+    let minRatingRaw = params.get("min_rating");
+    let isPetFriendlyRaw = params.get("is_pet_friendly");
+    let cuisineParam = params.get("cuisine");
+
+    if (isNaN(page) || page < 1) {
+      page = 1;
+      params.set("page", "1");
+      shouldRedirect = true;
+    }
+
+    let minRating = minRatingRaw ? parseInt(minRatingRaw) : null;
+    if (
+      minRating !== null &&
+      (isNaN(minRating) || minRating < 0 || minRating > 5)
+    ) {
+      minRating = null;
+      params.delete("min_rating");
+      shouldRedirect = true;
+    }
+
+    let isPetFriendly: boolean | null = null;
+    if (isPetFriendlyRaw === "true") isPetFriendly = true;
+    else if (isPetFriendlyRaw === "false") isPetFriendly = false;
+    else if (isPetFriendlyRaw !== null) {
+      params.delete("is_pet_friendly");
+      shouldRedirect = true;
+    }
 
     const cuisinesFromParams = cuisineParam
       ? cuisineParam.split(",").filter(Boolean)
       : [];
 
-    if (cuisinesFromParams.join(",") !== filters.cuisines.join(",")) {
+    if (page !== currentPage) setCurrentPage(page);
+    if (name !== filters.name) setNameFilter(name);
+    if (minRating !== filters.minRating) setMinRatingFilter(minRating);
+    if (isPetFriendly !== filters.isPetFriendly)
+      setIsPetFriendlyFilter(isPetFriendly);
+    if (cuisinesFromParams.join(",") !== filters.cuisines.join(","))
       setCuisinesFilter(cuisinesFromParams);
+
+    if (shouldRedirect) {
+      router.replace(`${pathname}?${params.toString()}`);
     }
   };
 
   useEffect(() => {
+    const pageFromParams = parseInt(searchParams.get("page") || "1", 10);
     syncParamsToStore();
-  }, [searchParams]);
+
+    if (!loading && adjustedTotal > 0) {
+      const total = Math.ceil(adjustedTotal / restaurantsPerPage);
+      const isInvalid =
+        isNaN(pageFromParams) || pageFromParams < 1 || pageFromParams > total;
+
+      if (isInvalid && currentPage !== 1) {
+        router.replace(`${pathname}?page=1`);
+      }
+    }
+  }, [searchParams, adjustedTotal, restaurantsPerPage, loading]);
 
   useEffect(() => {
     if (userStore.user) {
@@ -85,10 +128,6 @@ const RestaurantsList = () => {
     filters.cuisines.join(","),
     currentPage,
   ]);
-
-  const adjustedTotal = userStore.isOwner
-    ? restaurantStore.totalCount + 1
-    : restaurantStore.totalCount;
 
   return (
     <div className="container py-5">
@@ -114,6 +153,11 @@ const RestaurantsList = () => {
                 {userStore.isOwner && currentPage === 1 && (
                   <div className="col">
                     <CreateRestaurantCard onClick={() => setShowModal(true)} />
+                  </div>
+                )}
+                {restaurants.length === 0 && (
+                  <div className="flex flex-column text-center">
+                    <p>No restaurants found</p>
                   </div>
                 )}
                 {restaurants.map((restaurant) => (

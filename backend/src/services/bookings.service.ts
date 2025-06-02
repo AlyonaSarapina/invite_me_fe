@@ -45,6 +45,10 @@ export class BookingsService {
     return { data: bookings, total, confirmed, restaurantNamesList };
   }
 
+  findByPhone(phone: string) {
+    return this.userService.getUserByPhone(phone);
+  }
+
   private async getWhereConditionsForRole(
     userId: number,
     role: 'client' | 'owner',

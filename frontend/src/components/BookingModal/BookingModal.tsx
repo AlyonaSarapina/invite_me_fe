@@ -119,30 +119,65 @@ const BookingModal: React.FC<BookingModalProps> = ({
 
     try {
       const selectedPeriod = getPeriodFromTime(selectedStartTime);
-      const existingBooking = bookingStore.bookings.find((b) => {
-        if (b.status === "cancelled") return false;
-        const bookingDate = b.start_time.split("T")[0];
-        const bookingTime = b.start_time.split("T")[1]?.slice(0, 5);
-        return (
-          bookingDate === selectedDate &&
-          getPeriodFromTime(bookingTime) === selectedPeriod
-        );
-      });
+      let existingBooking;
 
-      if (existingBooking) {
-        toast.warn(
-          `⚠️ You already have a ${selectedPeriod} booking on ${
-            existingBooking.start_time.split("T")[0]
-          }`
+      if (userStore.isOwner && clientPhoneNumber) {
+        const clientBookings = await bookingStore.fetchBookingsByPhone(
+          clientPhoneNumber
         );
-        return;
+
+        if (!clientBookings.bookings) {
+          toast.error("User with this phone number does not exist.");
+          return;
+        }
+
+        existingBooking = clientBookings.bookings.find(
+          (b: { status: string; start_time: string }) => {
+            if (b.status === "cancelled" || b.status === "completed")
+              return false;
+            const bookingDate = b.start_time.split("T")[0];
+            const bookingTime = b.start_time.split("T")[1]?.slice(0, 5);
+            return (
+              bookingDate === selectedDate &&
+              getPeriodFromTime(bookingTime) === selectedPeriod
+            );
+          }
+        );
+
+        if (existingBooking) {
+          toast.warn(
+            `⚠️ This client already has a ${selectedPeriod} booking on ${
+              existingBooking.start_time.split("T")[0]
+            }`
+          );
+          return;
+        }
+      } else {
+        existingBooking = bookingStore.bookings.find((b) => {
+          if (b.status === "cancelled" || b.status === "completed")
+            return false;
+          const bookingDate = b.start_time.split("T")[0];
+          const bookingTime = b.start_time.split("T")[1]?.slice(0, 5);
+          return (
+            bookingDate === selectedDate &&
+            getPeriodFromTime(bookingTime) === selectedPeriod
+          );
+        });
+
+        if (existingBooking) {
+          toast.warn(
+            `⚠️ You already have a ${selectedPeriod} booking on ${
+              existingBooking.start_time.split("T")[0]
+            }`
+          );
+          return;
+        }
       }
 
       const res = await bookingStore.createBooking(restaurant.id, {
         start_time: selectedTimeSlot,
         num_people: numPeople,
-        clientPhoneNumber:
-          userStore.user?.role === "owner" ? clientPhoneNumber : undefined,
+        clientPhoneNumber: userStore.isOwner ? clientPhoneNumber : undefined,
       });
 
       if (res.status === "confirmed") {
@@ -150,10 +185,9 @@ const BookingModal: React.FC<BookingModalProps> = ({
         bookingStore.clearSlots();
         bookingStore.fetchBookings();
         setShowModal(false);
-      } else {
-        toast.error("❌ Booking failed. Please try again");
       }
-    } catch (err) {
+    } catch (err: any) {
+      console.log(err);
       toast.error("❌ Something went wrong.");
     } finally {
       setCreatingBooking(false);
@@ -266,7 +300,11 @@ const BookingModal: React.FC<BookingModalProps> = ({
         <Button
           variant="success"
           onClick={handleBookingCreate}
-          disabled={!selectedTimeSlot || !clientPhoneNumber || creatingBooking}
+          disabled={
+            !selectedTimeSlot ||
+            (!clientPhoneNumber && userStore.isOwner) ||
+            creatingBooking
+          }
         >
           {creatingBooking ? "Booking..." : "Confirm Booking"}
         </Button>
