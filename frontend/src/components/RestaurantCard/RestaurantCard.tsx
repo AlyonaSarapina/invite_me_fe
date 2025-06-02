@@ -1,13 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import { Instance } from "mobx-state-tree";
 import RestaurantModel from "@/stores/models/RestaurantModel";
 import { useStore } from "@/stores/context";
 import { observer } from "mobx-react";
 import styles from "./RestaurantCard.module.css";
-import TableModal from "../TableModal/TableModal";
 
 interface RestaurantCardProps {
   setShowModal: Dispatch<React.SetStateAction<boolean>>;

@@ -6,7 +6,7 @@ export function getChangedFields<T>(
   for (const key in current) {
     if (typeof current[key] === "object" && current[key] !== null) {
       if (JSON.stringify(current[key]) !== JSON.stringify(original[key])) {
-        changed[key] = current[key];
+        changed[key] = current[key] as T[Extract<keyof T, string>];
       }
     } else {
       if (current[key] !== original[key]) {

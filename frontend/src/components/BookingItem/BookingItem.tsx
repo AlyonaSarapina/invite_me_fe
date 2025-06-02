@@ -25,10 +25,10 @@ const BookingItem: React.FC<BookingItemProps> = ({
         <div className="col-md-2 col-4 d-flex flex-column">
           <strong>Restaurant:</strong>
           <Link
-            href={`/user/restaurants/${booking.table.restaurant.id}`}
+            href={`/user/restaurants/${booking.table.restaurant?.id}`}
             className="text-decoration-none"
           >
-            {booking.table.restaurant.name}
+            {booking.table.restaurant?.name}
           </Link>
         </div>
 
