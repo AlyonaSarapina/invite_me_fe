@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import { Instance } from "mobx-state-tree";
 import RestaurantModel from "@/stores/models/RestaurantModel";
 import { useStore } from "@/stores/context";
 import { observer } from "mobx-react";
 import styles from "./RestaurantCard.module.css";
+import Image from "next/image";
 
 interface RestaurantCardProps {
   setShowModal: Dispatch<React.SetStateAction<boolean>>;
@@ -21,16 +22,17 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
   setRestaurantToEdit,
   restaurant,
 }) => {
-  const { userStore, tableStore } = useStore();
-  const [tablesLength, setTablesLength] = useState<number | null>(null);
+  const { userStore } = useStore();
 
   return (
     <div
       className={`card h-100 shadow-sm border-0 overflow-hidden p-3 ${styles.cardWrapper}`}
     >
       <div className={styles.imageWrapper}>
-        <img
+        <Image
           src={restaurant.logo_url || "/default-restaurant.png"}
+          width={300}
+          height={200}
           className={`card-img-top ${styles.logo}`}
           alt={restaurant.name}
         />

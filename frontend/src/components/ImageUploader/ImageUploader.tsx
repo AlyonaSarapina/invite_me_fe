@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import styles from "./ImageUploader.module.css";
+import Image from "next/image";
 
 type Props = {
   id?: number | null;
@@ -49,15 +50,17 @@ const ImageUploader = ({
   };
 
   return (
-    <div>
+    <div className="d-flex justify-content-center">
       <div
-        className={`position-relative d-inline-block mb-2 ${styles.imageWrapper}`}
+        className={`position-relative d-inline-block${styles.imageWrapper} d-flex`}
       >
-        <img
+        <Image
           src={imageUrl || (id ? "/default-restaurant.png" : "/user.png")}
           alt="Uploaded"
+          width={size}
+          height={size}
+          objectFit="cover"
           className={`img-fluid ${styles.imagePreview}`}
-          style={{ width: `${size}px`, height: `${size}px` }}
         />
 
         <input

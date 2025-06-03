@@ -39,8 +39,9 @@ const Filters = () => {
   const debouncedSearch = useMemo(
     () =>
       debounce((name: string) => {
-        updateQueryParam("name", name, router);
-        setNameFilter(name);
+        const normalizedName = name.trim();
+        updateQueryParam("name", normalizedName, router);
+        setNameFilter(normalizedName);
       }, 300),
     []
   );

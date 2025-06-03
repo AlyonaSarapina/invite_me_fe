@@ -77,7 +77,7 @@ const UserProfile = () => {
             >
               {({ values, setFieldValue, isSubmitting, resetForm }) => (
                 <Form>
-                  <div className="mb-3">
+                  <div className="mt-md-5">
                     <label className="form-label fw-bold">Name</label>
                     {editMode ? (
                       <>
